@@ -160,7 +160,7 @@ function handleAdd(args, dataFile) {
   const totalHours = (totalMinutes / 60).toFixed(2).replace(/\.?0+$/, '');
 
   console.log(`Added session #${newSession.id}: ${pluralize(newSession.minutes, 'minute')} - "${newSession.note}"`);
-  console.log(`Total study time logged: ${pluralize(totalMinutes, 'minute')} (${totalHours} hours across ${pluralize(allSessions.length, 'session')})`);
+  console.log(`Total study time logged: ${pluralize(totalMinutes, 'minute')} (${pluralize(totalHours, 'hour')} across ${pluralize(allSessions.length, 'session')})`);
 }
 
 /**
@@ -209,8 +209,8 @@ function handleSummary(args, dataFile) {
   console.log(`Goal hours: ${pluralize(summary.goalHours, 'hour')}`);
   console.log(`Weekly hours: ${pluralize(summary.weeklyHours, 'hour')}`);
   console.log(`Logged sessions: ${pluralize(summary.sessionCount, 'session')}`);
-  console.log(`Completed time: ${pluralize(summary.accumulatedMinutes, 'minute')} (${summary.completedHours} hours)`);
-  console.log(`Remaining hours: ${summary.remainingHours} hours`);
+  console.log(`Completed time: ${pluralize(summary.accumulatedMinutes, 'minute')} (${pluralize(summary.completedHours, 'hour')})`);
+  console.log(`Remaining hours: ${pluralize(summary.remainingHours, 'hour')}`);
 
   if (summary.isCompleted) {
     console.log('Status: Goal completed! 0 weeks remaining.');
