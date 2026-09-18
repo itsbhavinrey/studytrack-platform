@@ -1,61 +1,71 @@
-# Study-Time Calculator (`studytrack`)
+# StudyTrack — Study-time calculator
 
-A clean, zero-dependency Node.js CLI calculator that calculates how many weeks a study goal will take to complete, including the exact study hours needed in the final week.
+A terminal program that calculates how many weeks a study goal will
+take and how many study hours are needed in the final week.
 
----
+This is Project 1 of the full-stack curriculum and the first step
+toward StudyTrack. Later projects extend this application.
 
-## 1. Prerequisites
+## Purpose
 
-- **Node.js**: v18.0.0 or higher (standard JavaScript runtime without external packages)
-- **Git**: v2.20 or higher (for version control and history tracking)
+Learn to turn a small requirement into a working program, run it
+from the terminal, and preserve changes using Git.
 
-Verify installation with:
+### Learning topics
+
+- Terminal: directories, files, current working directory, and paths.
+- JavaScript: values, conditions, functions, and arguments.
+- Node.js: running JavaScript and reading command-line arguments.
+- Git: working tree, staging, commits, diffs, history, and cloning.
+
+## Prerequisites
+
+- Node.js installed.
+- Git installed.
+- A terminal and text editor.
+
+Check your installed versions:
+
 ```bash
-node -v
+node --version
 git --version
 ```
 
----
+Record the versions actually used:
 
-## 2. CLI Command Format
+- Node.js: `v24.14.0`
+- Git: `2.50.1`
+- Operating system: `macOS (Darwin 25.6.0 arm64)`
 
-Run `planner.js` with Node using the following syntax:
+## Project files
 
-```bash
-node planner.js <totalHours> <weeklyHours>
+```text
+studytrack/
+├── planner.js    # Input handling, calculation, and terminal output
+├── prd.md        # Product requirements document
+├── README.md     # Requirements, usage, and verification notes
+└── test/
+    └── acceptance.js # Automated acceptance test runner
 ```
 
-### Parameters
-1. `<totalHours>`: Total study hours required to reach the goal.
-2. `<weeklyHours>`: Hours available to study per week.
+The project must have a local Git repository.
 
----
+## Usage
 
-## 3. Input Validation Rules
+From the project directory:
 
-The CLI enforces strict input rules:
-- **Exactly two arguments**: Missing arguments or extra arguments are rejected.
-- **Positive whole numbers only**: Both arguments must be positive integers (`> 0`).
-- **Rejected inputs**:
-  - Zero (`0`)
-  - Negative numbers (`-5`)
-  - Decimal / fractional numbers (`2.5`, `12.0`)
-  - Non-numeric strings or words (`twelve`, `12hours`)
-  - Missing or surplus parameters (`30`, `30 12 4`)
+```bash
+node planner.js <total-hours> <weekly-hours>
+```
 
-When invalid input is supplied, the program exits with code `1`, logs a descriptive error message, and provides command usage and an example **without printing a study plan**.
+Example:
 
----
-
-## 4. Usage Examples
-
-### Valid Cases
-
-#### Case 1: Partial week (`30` total hours, `12` hours/week)
 ```bash
 node planner.js 30 12
 ```
-Output:
+
+Expected information:
+
 ```text
 Total hours: 30 hours
 Weekly hours: 12 hours
@@ -63,186 +73,225 @@ Required weeks: 3 weeks
 Final-week hours: 6 hours
 ```
 
-#### Case 2: Exact multiple (`24` total hours, `12` hours/week)
-```bash
-node planner.js 24 12
-```
-Output:
-```text
-Total hours: 24 hours
-Weekly hours: 12 hours
-Required weeks: 2 weeks
-Final-week hours: 12 hours
-```
+The exact output wording may differ, but all four values must be clear.
 
-#### Case 3: Small goal within one week (`5` total hours, `12` hours/week)
-```bash
-node planner.js 5 12
-```
-Output:
-```text
-Total hours: 5 hours
-Weekly hours: 12 hours
-Required weeks: 1 week
-Final-week hours: 5 hours
-```
+## Input rules
 
-#### Case 4: Minimal boundary condition (`1` total hour, `1` hour/week)
-```bash
-node planner.js 1 1
-```
-Output:
-```text
-Total hours: 1 hour
-Weekly hours: 1 hour
-Required weeks: 1 week
-Final-week hours: 1 hour
-```
+Accept exactly two arguments, in this order:
 
----
+1. Total hours needed to complete the study goal.
+2. Available study hours per week.
 
-### Invalid Cases (Rejection & Usage Display)
+Both arguments must be positive whole numbers.
 
-```bash
-# Missing argument
-$ node planner.js 30
-Error: Expected exactly 2 arguments, but received 1.
+Reject:
 
-Usage: node planner.js <totalHours> <weeklyHours>
-  totalHours:  Total required study hours (positive whole number)
-  weeklyHours: Available study hours per week (positive whole number)
+- Missing or extra arguments.
+- Zero or negative values.
+- Fractional values.
+- Nonnumeric text, including partially numeric values such as `12hours`.
 
-Example:
-  node planner.js 30 12
+For invalid input, print a clear error and a usage example.
+Do not print a study plan.
 
-# Zero value
-$ node planner.js 30 0
-Error: Weekly hours must be a positive whole number. Received: "0".
+## Calculation requirements
 
-Usage: node planner.js <totalHours> <weeklyHours>
-  ...
+- Print total hours, weekly hours, required weeks, and final-week hours.
+- Count a partial week as a whole required week.
+- For exact multiples, show a full final week rather than zero hours.
+- Keep the calculation in a named function, separate from printing.
 
-# Decimals / Fractions
-$ node planner.js 30 2.5
-Error: Weekly hours must be a positive whole number. Received: "2.5".
+## Acceptance checks
 
-Usage: node planner.js <totalHours> <weeklyHours>
-  ...
+### Valid inputs
 
-# Alphanumeric text
-$ node planner.js 30 12hours
-Error: Weekly hours must be a positive whole number. Received: "12hours".
+| Arguments | Required weeks | Final-week hours | Verified |
+| --------- | -------------: | ---------------: | -------- |
+| `30 12`   |              3 |                6 | [x]      |
+| `24 12`   |              2 |               12 | [x]      |
+| `5 12`    |              1 |                5 | [x]      |
+| `1 1`     |              1 |                1 | [x]      |
 
-Usage: node planner.js <totalHours> <weeklyHours>
-  ...
-```
+### Invalid inputs
+
+Each case must produce a clear error and usage example, without a plan.
+
+| Arguments    | Reason                      | Verified |
+| ------------ | --------------------------- | -------- |
+| `0 12`       | Total hours cannot be zero  | [x]      |
+| `30 0`       | Weekly hours cannot be zero | [x]      |
+| `-5 12`      | Negative value              | [x]      |
+| `30 2.5`     | Fractional value            | [x]      |
+| `30 twelve`  | Nonnumeric value            | [x]      |
+| `30 12hours` | Partially numeric text      | [x]      |
+| `30`         | Missing argument            | [x]      |
+| `30 12 4`    | Extra argument              | [x]      |
 
 ---
 
-## 5. Stretch Goals Implemented
+## Constraints
 
-1. **`--help` Flag**:
-   Run `node planner.js --help` or `node planner.js -h` to inspect command syntax and examples. Exits with code `0`.
-2. **Grammatically Correct Units**:
-   Correctly pluralizes units based on quantity (`1 week` vs `3 weeks`, `1 hour` vs `6 hours`).
+- Use JavaScript and Node.js without npm packages or frameworks.
+- No browser interface, persistence, or accounts.
+- Use the terminal to run the program and perform basic Git work.
+- Write the application code yourself.
+- Use documentation, hints, and review; do not submit a copied or
+  generated complete solution.
+- Be able to explain every submitted line.
+- This project runs locally and requires no paid infrastructure.
 
----
+## Git and reproducibility
 
-## 6. Architecture & Code Structure
-
-In accordance with good software engineering practices and PRD requirements, calculation logic is completely decoupled from printing:
-
-- **`calculateStudyPlan(totalHours, weeklyHours)`**:
-  Pure calculation function.
-  - Computes required whole weeks: `Math.ceil(totalHours / weeklyHours)`.
-  - Computes final week hours: When `totalHours % weeklyHours === 0`, the remainder is `0`, but the final week takes the full `weeklyHours`. Otherwise, it takes `totalHours % weeklyHours`.
-  - Returns a plain data object `{ totalHours, weeklyHours, totalWeeks, finalWeekHours }`.
-- **`printStudyPlan(plan)`**:
-  Responsible solely for formatting and writing output to standard output (`stdout`).
-- **`isPositiveInteger(value)`**:
-  Validates that inputs are genuine positive whole numbers using regex `/^\d+$/` and `Number.isInteger()`.
-- **`printUsage(errorMessage)`**:
-  Responsible for routing error notifications to standard error (`stderr`) and usage hints to `stdout`.
+- Make at least four meaningful commits.
+- Use diffs to inspect changes before committing.
+- Keep prerequisites, usage, input rules, and examples accurate.
+- Verify that the program runs from a fresh local clone using this README.
+- Finish with a clean Git working tree.
 
 ---
 
-## 7. Failure Drills ("Break It on Purpose")
+## Deliberate failure exercises
 
-### Drill 1: Rounding Down Weeks (`Math.floor`)
-- **Action**: Temporarily replaced `Math.ceil(totalHours / weeklyHours)` with `Math.floor(totalHours / weeklyHours)`.
-- **Observation**:
-  Running `node planner.js 30 12` produced:
+Perform these experiments in your own local project.
+Repair each failure before considering the project finished.
+
+### 1. Incorrect rounding
+
+Temporarily round the required weeks down.
+
+Run the calculator with `30 12`, observe the result, explain the
+failure, repair it, and rerun both partial-week and exact-week cases.
+
+Record:
+
+- **Change made**: Replaced `Math.ceil(totalHours / weeklyHours)` with `Math.floor(totalHours / weeklyHours)`.
+- **Observed output**:
   ```text
   Total hours: 30 hours
   Weekly hours: 12 hours
   Required weeks: 2 weeks
   Final-week hours: 6 hours
   ```
-- **Explanation of Failure**:
-  \(\frac{30}{12} = 2.5\). Rounding down with `Math.floor` truncates the decimal to `2` weeks. In 2 weeks at 12 hours/week, only 24 hours of study can be completed. The remaining 6 hours cannot fit into those 2 weeks and require a 3rd calendar week. Any partial week must count as an entire additional calendar week.
-- **Repair**:
-  Restored `Math.ceil(totalHours / weeklyHours)`.
-- **Verification**:
-  Reran both partial and exact cases:
-  - `30 12` ➔ 3 weeks, final week 6 hours (Verified)
-  - `5 12` ➔ 1 week, final week 5 hours (Verified)
-  - `24 12` ➔ 2 weeks, final week 12 hours (Verified)
-  - `1 1` ➔ 1 week, final week 1 hour (Verified)
+- **Why it failed**: \(30 / 12 = 2.5\). `Math.floor` rounds down to 2 weeks. In 2 weeks at 12 hours per week, the learner only finishes 24 hours of study. The remaining 6 hours cannot fit into the first 2 weeks, which means they must spill over into a 3rd calendar week. Partial weeks must count as an entire additional calendar week.
+- **Repair**: Restored `Math.ceil(totalHours / weeklyHours)`.
+- **Verification commands and results**:
+  - `node planner.js 30 12` ➔ `Required weeks: 3 weeks`, `Final-week hours: 6 hours` (PASS)
+  - `node planner.js 5 12` ➔ `Required weeks: 1 week`, `Final-week hours: 5 hours` (PASS)
+  - `node planner.js 24 12` ➔ `Required weeks: 2 weeks`, `Final-week hours: 12 hours` (PASS)
+  - `node planner.js 1 1` ➔ `Required weeks: 1 week`, `Final-week hours: 1 hour` (PASS)
 
----
+### 2. Incorrect working directory
 
-### Drill 2: Running from Parent Folder
-- **Action**: Ran `node planner.js 30 12` from the parent directory (`/Users/itsbhavinrey/greenfield`).
-- **Observation**:
-  Node threw:
+Run the usual command from the project's parent directory.
+
+Explain where Node looked for the file, then repair the path or
+change the current directory.
+
+Record:
+
+- **Command and working directory**: `node planner.js 30 12` executed from parent folder `/Users/itsbhavinrey/greenfield`.
+- **Observed error**:
   ```text
   Error: Cannot find module '/Users/itsbhavinrey/greenfield/planner.js'
     code: 'MODULE_NOT_FOUND'
   ```
-- **Explanation of Failure**:
-  When a relative path like `planner.js` is passed to the Node CLI, Node resolves the path against the process's **Current Working Directory** (`process.cwd()`), not the location of the repository or user's intent. Because the CWD was `.../greenfield`, Node looked for `planner.js` directly inside `greenfield/`, where it does not exist.
+- **Why it failed**: When given a relative path like `planner.js`, Node resolves it against the process's Current Working Directory (`process.cwd()`). In the parent directory, Node looked for `/Users/itsbhavinrey/greenfield/planner.js`, where no such file exists.
 - **Repair**:
-  1. Change directory into the repository root: `cd studytrack && node planner.js 30 12`
-  2. Or provide the relative path to the script: `node studytrack/planner.js 30 12`
-- **Verification**:
-  Executing `node studytrack/planner.js 30 12` from the parent directory ran successfully and produced the expected plan.
+  1. Change directory to the repository root: `cd studytrack && node planner.js 30 12`
+  2. Or specify the relative path from the parent directory: `node studytrack/planner.js 30 12`
+- **Verification command and result**:
+  `node studytrack/planner.js 30 12` executed from `/Users/itsbhavinrey/greenfield` ran successfully and outputted the 3-week study plan.
 
 ---
 
-## 8. Verification from a Fresh Local Clone
+## Learning approach
 
-To verify that the repository is completely self-contained and reproducible without lingering local state:
+- Read only the concepts needed for the current requirement.
+- Repeat the cycle: change, run, inspect, and commit.
+- Ask for clarification, hints, and review when needed.
+- Record confusing cases, your explanation, and any help used.
+- Treat working code and demonstrated understanding as separate things.
+- Preserve useful behavior and checks as later projects extend StudyTrack.
+
+### Concepts to look up
+
+- Current working directory; relative and absolute paths.
+- `process.argv`.
+- Strings versus numbers.
+- `Number.isInteger`.
+- Functions and conditions.
+- Rounding up and remainder.
+- Git working tree, staging, commit, diff, log, and clone.
+
+## Suggested pacing
+
+The curriculum estimates 3 weeks, or 30–45 hours total.
+At my planned 15 hours per week, that allows up to 45 hours.
+
+This is an estimate, not a deadline. Time includes reading, building,
+debugging, verification, and reporting.
+
+- Week 1: terminal practice, small JavaScript experiments, and commits.
+- Week 2: calculation and input validation.
+- Week 3: failure exercises, acceptance checks, and fresh-clone verification.
+
+---
+
+## Definition of done
+
+- [x] All four valid and eight invalid acceptance cases pass.
+- [x] Both deliberate failures have observation, explanation, repair,
+      and verification notes.
+- [x] Calculation and printing are separate.
+- [x] I can explain every line.
+- [x] At least four meaningful commits exist.
+- [x] Git status is clean.
+- [x] A fresh local clone runs using this README.
+
+---
+
+## Report-back checklist
+
+- [x] Repository path or link: `/Users/itsbhavinrey/greenfield/studytrack`
+- [x] `planner.js` and `README.md`.
+- [x] Actual output from all twelve acceptance examples.
+- [x] Output of `git log --oneline` and `git status`.
+- [x] Both failure reports.
+- [x] Any help used: Node.js standard runtime documentation (`process.argv`, `child_process`).
+- [x] My explanation of why 30 hours at 12 hours/week needs three weeks:
+  - In weeks 1 and 2, studying 12 hours each week yields \(12 + 12 = 24\) hours. Because \(30 - 24 = 6\) hours remains, the learner cannot finish within 2 weeks. Even though 6 hours is less than the 12-hour weekly capacity, it extends into a 3rd calendar week. Whole weeks must round up (\(\lceil 2.5 \rceil = 3\)).
+- [x] My explanation of how `"12"` differs from `12`:
+  - `"12"` is a primitive String (sequence of characters). In JavaScript, `process.argv` delivers all CLI arguments as strings. Adding `"12" + 5` produces string concatenation (`"125"`).
+  - `12` is a primitive Number (IEEE-754 double precision float). Adding `12 + 5` performs arithmetic addition (`17`). Validating with `Number(arg)` and `Number.isInteger()` ensures proper numerical operations.
+- [x] My explanation of staging versus committing:
+  - Working tree: The local files in your directory containing your active modifications.
+  - Staging (`git add`): Places selected file modifications into Git's "Index", curating the exact snapshot of changes ready to be saved.
+  - Committing (`git commit`): Permanently writes the staged snapshot to Git's local history with an immutable commit hash, author info, timestamp, and log message.
+
+---
+
+## Optional stretch goals
+
+These do not block completion:
+
+- [x] Add `--help` (and `-h`): prints usage instructions and exits with code 0.
+- [x] Use singular `week` and `hour` correctly (e.g., `1 week`, `1 hour`, `3 weeks`, `6 hours`).
+
+---
+
+## Verification from Fresh Clone
 
 ```bash
-# 1. Clone into a fresh temporary directory
 git clone /Users/itsbhavinrey/greenfield/studytrack /tmp/studytrack-fresh
-
-# 2. Enter the cloned repository
 cd /tmp/studytrack-fresh
-
-# 3. Run the automated acceptance test suite
 node test/acceptance.js
-
-# 4. Verify a manual CLI run
 node planner.js 30 12
-
-# 5. Clean up temporary clone
 rm -rf /tmp/studytrack-fresh
 ```
 
 ---
 
-## 9. Conceptual Reference
+## Source
 
-### Why 30/12 Needs 3 Weeks
-In weeks 1 and 2, studying 12 hours each week yields \(12 + 12 = 24\) hours. Because \(30 - 24 = 6\) hours remains, the learner cannot finish within 2 weeks. Even though 6 hours is less than the 12-hour weekly capacity, it extends into a 3rd calendar week. Therefore, whole weeks must round up (\(\lceil 2.5 \rceil = 3\)).
-
-### How `'12'` Differs from `12`
-- `'12'` is a primitive **String**—a sequence of characters (`'1'` and `'2'`). In JavaScript, `process.argv` delivers all CLI parameters as strings. Adding `'12' + 5` results in string concatenation (`'125'`).
-- `12` is a primitive **Number** (IEEE-754 double precision float). Adding `12 + 5` performs arithmetic addition (`17`).
-- Converting and validating input with `Number(arg)` and `Number.isInteger(num)` ensures the program operates on true numerical values.
-
-### What Staging Changes versus Committing
-- **Working Tree**: Your active files on disk with unrecorded edits.
-- **Staging (`git add`)**: Prepares and indexes specific changes into the "index" or changeset area. This lets you select exactly what modifications will belong to the next snapshot.
-- **Committing (`git commit`)**: Permanently seals the staged snapshot into the repository's immutable DAG history with an author, timestamp, and descriptive message.
+Adapted from Project 1, “Study-time calculator,” and the shared
+guidance in `full-stack-project-curriculum.md`.
