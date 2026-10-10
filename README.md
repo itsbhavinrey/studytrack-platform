@@ -2,7 +2,7 @@
 
 A terminal application for planning study goals, logging study sessions, and tracking progress over time.
 
-StudyTrack began as a stateless study-time calculator (**Project 1**) and has been extended into a persistent study log that survives process restarts (**Project 2**).
+StudyTrack began as a stateless study-time calculator (**Project 1**) and has been extended into a persistent study log that survives process restarts (**Project 2**). **Project 3** adds a second runnable artifact: a static, accessible public study profile page in `web/` (HTML and CSS only, no JavaScript).
 
 ---
 
@@ -10,6 +10,7 @@ StudyTrack began as a stateless study-time calculator (**Project 1**) and has be
 
 - **Project 1**: Understand terminal environments, Node CLI execution, pure calculations, input validation, and Git version control.
 - **Project 2**: Build modular JavaScript/Node applications, design JSON data models, implement file persistence, handle absent and corrupted data safely, and write thorough unit and integration test suites.
+- **Project 3**: Learn the browser document model with semantic HTML (landmarks, headings, lists, labels), the CSS cascade and box model, one responsive layout technique (flexbox), and keyboard and contrast accessibility checks.
 
 ### Learning Topics
 
@@ -44,6 +45,16 @@ studytrack/
 ├── prd2.md                 # Project 2 Product Requirements Document
 ├── package.json            # Test runner scripts (no third-party dependencies)
 ├── README.md               # Documentation, usage guide, and verification notes
+├── web/                    # Project 3 static study profile (no JavaScript)
+│   ├── index.html          # Semantic page structure: landmarks, headings, lists, table, form
+│   └── styles.css          # Hand-written CSS: cascade, flexbox layout, focus styles
+├── docs/
+│   └── projects/
+│       └── p03/
+│           ├── prd.md      # Project 3 brief as a checklist, plus build decisions
+│           ├── report.md   # Viewport, keyboard, contrast checks and failure report
+│           ├── learning.md # Concept notes, code walkthrough, self-quiz
+│           └── screenshots/ # 360px/1280px pages, focus states, break before/after
 ├── src/
 │   ├── calculation.js      # Pure calculation functions, unit conversions, validation
 │   ├── storage.js          # File persistence, load/save, and corrupt data protection
@@ -170,6 +181,24 @@ node planner.js --help
 node planner.js -h
 ```
 
+### 6. Public Study Profile Page (Project 3)
+
+A static web page in `web/` showing a learner's goal, weekly availability, three resources, a sample weekly plan, and a preview goal form. It is plain HTML and CSS, so there is nothing to install, build, or serve.
+
+Open it from the repository root:
+
+```bash
+open web/index.html          # macOS
+xdg-open web/index.html      # Linux
+start web\index.html         # Windows
+```
+
+Or drag `web/index.html` into any browser window. The stylesheet is linked with a relative path, so the page works straight from disk.
+
+The sample plan matches the calculator: `node planner.js 30 12` gives 3 weeks with 6 hours in the final week, and the page shows 12 + 12 + 6 hours.
+
+The goal form is a **preview until Project 5**. Its button is `type="button"` and it has more than one field with no submit button, so neither clicking nor pressing Enter submits anything.
+
 ---
 
 ## Data Storage & Persistence
@@ -265,6 +294,38 @@ node --test test/p2.test.js
 # Project 1 backward-compatibility acceptance tests:
 node test/acceptance.js
 ```
+
+---
+
+## Project 3 Checks (web page)
+
+Full details, numbers, and screenshots are in [`docs/projects/p03/report.md`](docs/projects/p03/report.md). Concept notes are in [`docs/projects/p03/learning.md`](docs/projects/p03/learning.md).
+
+- **Structure**: `header`, `nav` (named "Profile sections"), `main`, and `footer` landmarks; one `<title>`; one `h1` followed by five `h2`s with no skipped levels.
+- **Viewports**: at exactly 360px and 1280px (Chrome DevTools Protocol device emulation), `scrollWidth` equals the viewport width, so there is no horizontal scroll. Screenshots: [`profile-360.png`](docs/projects/p03/screenshots/profile-360.png) and [`profile-1280.png`](docs/projects/p03/screenshots/profile-1280.png).
+- **Keyboard check**: pressing Tab from the top reaches all 14 interactive elements in reading order:
+  1. Skip link
+  2. Five nav links
+  3. Three resource links
+  4. Goal name
+  5. Total hours needed
+  6. Hours available per week
+  7. Plan button
+  8. Back-to-top link
+
+  Each one shows a 3px focus outline: orange `#c2410c` on light areas, yellow `#ffbf47` in the navy header and footer. Every input has a visible label, and its accessible name matches that label.
+- **Contrast**: all text pairs are 6.21:1 or higher (WCAG AA needs 4.5:1). Focus rings are 4.83:1 or higher against their background (needs 3:1).
+- **Still recommended**: a manual keyboard pass by the owner (Tab, Shift+Tab, Enter, Space) in Chrome and in Safari with "Press Tab to highlight each item" enabled, plus a quick VoiceOver pass. The automated route pressed real Tab keys in headless Chrome, but no human has used the page yet.
+
+### Exercise 4: Removed Label and Focus Style (Project 3)
+
+- **Fault**: on a temporary branch, the "Total hours needed" `<label>` was removed, the input focus rule was deleted, and then `input:focus { outline: none; }` was added.
+- **Symptom**: the second field showed "30" with no label, so it was unclear whether that meant hours, weeks, or minutes. Its accessible name became `""`. When focused, it had no ring. Deleting our rule alone was not enough: Chrome's own thin blue ring came back until `outline: none` removed it.
+- **Repair**: returned to `main`, which still had the label and the `:focus-visible` outline and border, then deleted the branch.
+- **Verification**: repeated the same Tab route. The field's name is "Total hours needed" again, with a 3px orange ring. Before and after screenshots:
+  - [`break-before-repair-360.png`](docs/projects/p03/screenshots/break-before-repair-360.png)
+  - [`break-after-repair-360.png`](docs/projects/p03/screenshots/break-after-repair-360.png)
+  - 1280px versions are in the same folder.
 
 ---
 
@@ -367,3 +428,10 @@ rm -rf /tmp/studytrack-fresh-verify
 - [x] Absent data file handled gracefully as an empty log.
 - [x] Corrupt data triggers a clear error and is not silently replaced or overwritten.
 - [x] Fresh clone verified working using only this README.
+
+### Project 3 Definition of Done
+
+- [x] Required content and semantic structure are present (goal, availability, three resources, sample plan, preview form; landmarks and heading order checked in the accessibility tree).
+- [x] Both viewport checks pass (360px and 1280px, no horizontal scroll).
+- [x] Keyboard operation and visible labels pass (14-stop Tab route, visible focus, labelled inputs). A manual human keyboard pass is still recommended.
+- [x] This README and the before/after screenshots explain the accessibility repair (Exercise 4 above).
