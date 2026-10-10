@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>StudyTrack learner profile: goal, weekly availability and study plan</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <header class="site-header">
+    <p class="site-name">StudyTrack</p>
+    <nav class="site-nav" aria-label="Profile sections">
+      <ul>
+        <li><a href="#goal">Goal</a></li>
+        <li><a href="#availability">Weekly availability</a></li>
+        <li><a href="#resources">Resources</a></li>
+        <li><a href="#plan">Sample weekly plan</a></li>
+        <li><a href="#goal-form">Goal form preview</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="main">
+    <h1>Study profile: learning to build for the web</h1>
+    <p class="intro">
+      A public profile for a StudyTrack learner working through a sixty-week
+      web development curriculum, one project at a time.
+    </p>
+
+    <div class="summary">
+      <section id="goal" class="card" aria-labelledby="goal-heading">
+        <h2 id="goal-heading">Goal</h2>
+        <p>
+          Finish <strong>Project 3: a public study profile</strong>, a static page
+          built with semantic HTML and hand-written CSS, in
+          <strong>30 study hours</strong>.
+        </p>
+        <p>
+          Next up: publishing this page on the internet in Project 4.
+        </p>
+      </section>
+
+      <section id="availability" class="card" aria-labelledby="availability-heading">
+        <h2 id="availability-heading">Weekly availability</h2>
+        <p>
+          <strong>12 hours per week</strong>, spread across five days.
+        </p>
+        <dl class="availability">
+          <div>
+            <dt>Monday</dt>
+            <dd>2 hours</dd>
+          </div>
+          <div>
+            <dt>Tuesday</dt>
+            <dd>2 hours</dd>
+          </div>
+          <div>
+            <dt>Wednesday</dt>
+            <dd>2 hours</dd>
+          </div>
+          <div>
+            <dt>Thursday</dt>
+            <dd>2 hours</dd>
+          </div>
+          <div>
+            <dt>Saturday</dt>
+            <dd>4 hours</dd>
+          </div>
+        </dl>
+      </section>
+    </div>
+
+    <section id="resources" aria-labelledby="resources-heading">
+      <h2 id="resources-heading">Resources</h2>
+      <p>Three references used while building this page:</p>
+      <ul class="resource-list">
+        <li class="card">
+          <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element">MDN reference: HTML elements</a>
+          <p>Which element to use for headings, lists, landmarks and forms.</p>
+        </li>
+        <li class="card">
+          <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_flexible_box_layout/Basic_concepts_of_flexbox">MDN guide: basic concepts of flexbox</a>
+          <p>How flex containers, wrapping and flex-basis build the responsive rows.</p>
+        </li>
+        <li class="card">
+          <a href="https://www.w3.org/WAI/WCAG21/Understanding/contrast-minimum.html">W3C: Understanding WCAG contrast (minimum)</a>
+          <p>Why body text needs a contrast ratio of at least 4.5 to 1.</p>
+        </li>
+      </ul>
+    </section>
+
+    <section id="plan" aria-labelledby="plan-heading">
+      <h2 id="plan-heading">Sample weekly plan</h2>
+      <p>
+        30 total hours at 12 hours per week takes <strong>3 weeks</strong>, with
+        <strong>6 hours</strong> in the final week. This matches the StudyTrack
+        calculator: <code>node planner.js 30 12</code>.
+      </p>
+      <table class="plan">
+        <caption>Three-week plan for a 30-hour goal at 12 hours per week</caption>
+        <thead>
+          <tr>
+            <th scope="col">Week</th>
+            <th scope="col">Hours</th>
+            <th scope="col">Focus</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">1</th>
+            <td>12</td>
+            <td>Semantic HTML: landmarks, headings, lists and labels</td>
+          </tr>
+          <tr>
+            <th scope="row">2</th>
+            <td>12</td>
+            <td>CSS: cascade, box model and a flexbox responsive layout</td>
+          </tr>
+          <tr>
+            <th scope="row">3</th>
+            <td>6</td>
+            <td>Keyboard and contrast checks, screenshots and write-up</td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <th scope="row">Total</th>
+            <td>30</td>
+            <td>3 weeks</td>
+          </tr>
+        </tfoot>
+      </table>
+    </section>
+
+    <section id="goal-form" aria-labelledby="goal-form-heading">
+      <h2 id="goal-form-heading">Set a study goal</h2>
+      <p id="preview-note" class="preview-note">
+        <strong>Preview until Project 5.</strong>
+        This form does not submit or save anything yet. It shows the fields
+        the interactive planner will use.
+      </p>
+      <form class="goal-form" aria-describedby="preview-note">
+        <div class="field">
+          <label for="goal-name">Goal name</label>
+          <input id="goal-name" name="goal-name" type="text" autocomplete="off" value="Public study profile">
+        </div>
+        <div class="field">
+          <label for="total-hours">Total hours needed</label>
+          <input id="total-hours" name="total-hours" type="number" min="1" step="1" inputmode="numeric" value="30">
+        </div>
+        <div class="field">
+          <label for="weekly-hours">Hours available per week</label>
+          <input id="weekly-hours" name="weekly-hours" type="number" min="1" step="1" inputmode="numeric" value="12">
+        </div>
+        <button type="button">Plan my weeks (available in Project 5)</button>
+      </form>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>
+      StudyTrack, Project 3 of the sixty-week curriculum. Static HTML and CSS,
+      no JavaScript.
+    </p>
+    <p><a href="#main">Back to the top of the profile</a></p>
+  </footer>
+</body>
+</html>
