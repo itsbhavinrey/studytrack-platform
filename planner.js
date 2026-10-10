@@ -5,51 +5,7 @@
  * and hours needed in the final week for a given study goal.
  */
 
-/**
- * Returns a correctly pluralized string based on the count.
- * E.g., pluralize(1, 'week') -> '1 week', pluralize(3, 'week') -> '3 weeks'.
- */
-function pluralize(count, singular, plural = singular + 's') {
-  return `${count} ${count === 1 ? singular : plural}`;
-}
-
-/**
- * Validates whether a raw command-line argument represents a positive whole integer.
- * Rejects: non-numeric text, decimals/fractions, negatives, zero, and extraneous characters.
- */
-function isPositiveInteger(value) {
-  if (typeof value !== 'string') return false;
-  // Ensure the string consists solely of digits (rejects decimals, signs, whitespace, and letters)
-  if (!/^\d+$/.test(value)) return false;
-
-  const num = Number(value);
-  // Ensure the converted number is a positive integer matching the original string representation
-  return Number.isInteger(num) && num > 0 && String(num) === value;
-}
-
-/**
- * Calculates study plan metrics.
- * Kept strictly separate from display/printing logic.
- *
- * @param {number} totalHours - Total required study hours (> 0)
- * @param {number} weeklyHours - Available study hours per week (> 0)
- * @returns {object} Study plan containing totalHours, weeklyHours, totalWeeks, and finalWeekHours
- */
-function calculateStudyPlan(totalHours, weeklyHours) {
-  // Partial weeks count as a whole required week (round up)
-  const totalWeeks = Math.ceil(totalHours / weeklyHours);
-
-  // Exact multiples must not show zero final-week hours
-  const remainder = totalHours % weeklyHours;
-  const finalWeekHours = remainder === 0 ? weeklyHours : remainder;
-
-  return {
-    totalHours,
-    weeklyHours,
-    totalWeeks,
-    finalWeekHours,
-  };
-}
+const { pluralize, isPositiveInteger, calculateStudyPlan } = require('./src/calculation');
 
 /**
  * Prints the calculated study plan to standard output.
