@@ -355,3 +355,48 @@ main > section,
     padding: var(--space-4);
   }
 }
+
+/* ==========================================================================
+   6. Focus and accessibility
+   Every link, input and button shows a thick outline when it receives
+   keyboard focus. :focus-visible lets the browser skip the ring for mouse
+   clicks on buttons while always showing it for keyboard users and text
+   inputs. Ring colours are chosen for at least 3:1 against what surrounds
+   them (WCAG 2.x non-text contrast); see docs/projects/p03/report.md.
+   ========================================================================== */
+:root {
+  --color-focus: #c2410c;          /* ring on light backgrounds */
+  --color-focus-on-dark: #ffbf47;  /* ring on the navy header and footer */
+}
+
+a:focus-visible,
+input:focus-visible,
+button:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* Inside the dark header and footer the light-background ring would be too
+   faint (2.54:1), so these more specific selectors win the cascade. */
+.site-header a:focus-visible,
+.site-footer a:focus-visible {
+  outline-color: var(--color-focus-on-dark);
+}
+
+/* Inputs also get a stronger border when focused, so the change does not
+   rely on the outline colour alone. */
+.field input:focus-visible {
+  border-color: var(--color-text);
+}
+
+/* The skip link is the first stop on the tab route; make it obvious. */
+.skip-link:focus-visible {
+  background: var(--color-text);
+  color: var(--color-surface);
+}
+
+/* Links keep their underline everywhere, so they are not identified by
+   colour alone; hovering thickens it as an extra cue for mouse users. */
+a:hover {
+  text-decoration-thickness: 0.15em;
+}
