@@ -231,3 +231,127 @@ code {
 .site-footer p:last-child {
   margin-bottom: 0;
 }
+
+/* ==========================================================================
+   5. Layout - flexbox only, mobile first
+   The base (360px) layout is a single column in normal flow. Flexbox is the
+   one layout technique: each row below is a flex container whose items
+   wrap onto new lines when there is not enough room, so the same rules
+   give one column on a phone and side-by-side items on a wide screen.
+   ========================================================================== */
+
+/* Long words or code never force the page wider than the viewport. */
+body {
+  overflow-wrap: break-word;
+}
+
+/* Page width: header, main and footer share one readable column of at most
+   64rem. The padding trick centres the content while letting the header
+   and footer backgrounds still run edge to edge (no extra wrapper divs). */
+.site-header,
+main,
+.site-footer {
+  padding-inline: max(var(--space-3), calc((100% - 64rem) / 2));
+}
+
+main {
+  padding-block: var(--space-4);
+}
+
+main > section,
+.summary {
+  margin-bottom: var(--space-5);
+}
+
+/* Header row: site name and navigation sit side by side when they fit,
+   and the navigation wraps under the name when they do not. */
+.site-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
+}
+
+.site-name {
+  margin: 0;
+}
+
+.site-nav ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-3);
+}
+
+/* Goal and availability: two cards side by side on wide screens. Each card
+   wants 18rem (288px) and may grow; below 2 x 18rem they stack. */
+.summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.summary > .card {
+  flex: 1 1 18rem;
+  min-width: 0;
+}
+
+/* Availability: each day is a row with the hours pushed to the right. */
+.availability div {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-1) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* Resources: three cards in a row on wide screens, one column on phones. */
+.resource-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.resource-list > li {
+  flex: 1 1 16rem;
+  min-width: 0;
+}
+
+/* Plan table fills the column; its text wraps inside cells. */
+.plan {
+  width: 100%;
+}
+
+/* Goal form: fields sit in a row on wide screens and stack on phones. */
+.goal-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-3);
+}
+
+.field {
+  flex: 1 1 14rem;
+  min-width: 0;
+}
+
+.field input {
+  width: 100%;
+}
+
+/* Wide screens (768px at the default font size): more breathing room. */
+@media (min-width: 48em) {
+  main {
+    padding-block: var(--space-5);
+  }
+
+  .site-header,
+  .site-footer {
+    padding-block: var(--space-4);
+  }
+
+  .summary > .card,
+  .resource-list > li {
+    padding: var(--space-4);
+  }
+}
