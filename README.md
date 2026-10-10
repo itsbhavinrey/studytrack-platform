@@ -1,28 +1,30 @@
-# StudyTrack — Study-time calculator
+# StudyTrack — Study-Time Calculator & Persistent Study Log
 
-A terminal program that calculates how many weeks a study goal will
-take and how many study hours are needed in the final week.
+A terminal application for planning study goals, logging study sessions, and tracking progress over time.
 
-This is Project 1 of the full-stack curriculum and the first step
-toward StudyTrack. Later projects extend this application.
+StudyTrack began as a stateless study-time calculator (**Project 1**) and has been extended into a persistent study log that survives process restarts (**Project 2**).
+
+---
 
 ## Purpose
 
-Learn to turn a small requirement into a working program, run it
-from the terminal, and preserve changes using Git.
+- **Project 1**: Understand terminal environments, Node CLI execution, pure calculations, input validation, and Git version control.
+- **Project 2**: Build modular JavaScript/Node applications, design JSON data models, implement file persistence, handle absent and corrupted data safely, and write thorough unit and integration test suites.
 
-### Learning topics
+### Learning Topics
 
-- Terminal: directories, files, current working directory, and paths.
-- JavaScript: values, conditions, functions, and arguments.
-- Node.js: running JavaScript and reading command-line arguments.
-- Git: working tree, staging, commits, diffs, history, and cloning.
+- **Frontend > JS / TS / Node**: Arrays, objects, modules (CommonJS), JSON serialization, file system persistence (`fs`), and pure functions.
+- **Common > Testing and Performance**: Unit testing with Node's native test runner (`node:test`), assertions (`node:assert`), boundary value analysis, and process-level integration testing.
+- **Common > Documentation**: Comprehensive setup, reproducible examples, and failure drills.
+
+---
 
 ## Prerequisites
 
-- Node.js installed.
-- Git installed.
-- A terminal and text editor.
+- **Node.js**: `v18.0.0` or higher (built and verified with `v24.14.0`).
+- **Git**: `v2.0.0` or higher (built and verified with `2.50.1`).
+- Operating system: macOS, Linux, or Windows.
+- **Zero third-party dependencies**: Uses only Node.js standard libraries (`node:fs`, `node:path`, `node:os`, `node:child_process`, `node:test`, `node:assert`).
 
 Check your installed versions:
 
@@ -31,41 +33,54 @@ node --version
 git --version
 ```
 
-Record the versions actually used:
+---
 
-- Node.js: `v24.14.0`
-- Git: `2.50.1`
-- Operating system: `macOS (Darwin 25.6.0 arm64)`
-
-## Project files
+## Project Structure & Architecture
 
 ```text
 studytrack/
-├── planner.js    # Input handling, calculation, and terminal output
-├── prd.md        # Product requirements document
-├── README.md     # Requirements, usage, and verification notes
+├── planner.js              # CLI entry point delegating to command handler
+├── prd.md                  # Project 1 Product Requirements Document
+├── prd2.md                 # Project 2 Product Requirements Document
+├── package.json            # Test runner scripts (no third-party dependencies)
+├── README.md               # Documentation, usage guide, and verification notes
+├── src/
+│   ├── calculation.js      # Pure calculation functions, unit conversions, validation
+│   ├── storage.js          # File persistence, load/save, and corrupt data protection
+│   └── cli.js              # Command dispatch, argument parsing, and console output
 └── test/
-    └── acceptance.js # Automated acceptance test runner
+    ├── acceptance.js       # Project 1 acceptance test runner (13 test cases)
+    ├── calculation.test.js # Unit tests for pure calculation and validation functions
+    ├── storage.test.js     # Unit tests for file persistence and corrupt file safety
+    └── p2.test.js          # Integration tests for multi-run persistence and commands
 ```
 
-The project must have a local Git repository.
+### Module Separation (Requirement 3)
 
-## Usage
+1. **`src/calculation.js`**: Contains pure, deterministic functions with no side effects and no file/terminal I/O. Handles week estimations, accumulated minute totals, hours conversions, rounding, and input validation.
+2. **`src/storage.js`**: Manages file read/write operations using Node's `fs` module. Encapsulates single-writer persistence, generates sequential IDs, handles missing files gracefully, and detects corrupted JSON without overwriting it.
+3. **`src/cli.js`**: Parses flags and arguments, coordinates calculations and storage, formats human-readable terminal output, and sets proper process exit codes.
+4. **`planner.js`**: The main executable script that passes `process.argv` to `src/cli.js`.
 
-From the project directory:
+---
+
+## Usage & Commands
+
+### 1. Study-Time Calculator (Project 1)
+
+Calculates the total weeks required to complete a study goal and the hours needed in the final week.
 
 ```bash
-node planner.js <total-hours> <weekly-hours>
+node planner.js <totalHours> <weeklyHours>
 ```
 
-Example:
+**Example:**
 
 ```bash
 node planner.js 30 12
 ```
 
-Expected information:
-
+**Output:**
 ```text
 Total hours: 30 hours
 Weekly hours: 12 hours
@@ -73,225 +88,282 @@ Required weeks: 3 weeks
 Final-week hours: 6 hours
 ```
 
-The exact output wording may differ, but all four values must be clear.
+### 2. Log a Study Session (`add`)
 
-## Input rules
-
-Accept exactly two arguments, in this order:
-
-1. Total hours needed to complete the study goal.
-2. Available study hours per week.
-
-Both arguments must be positive whole numbers.
-
-Reject:
-
-- Missing or extra arguments.
-- Zero or negative values.
-- Fractional values.
-- Nonnumeric text, including partially numeric values such as `12hours`.
-
-For invalid input, print a clear error and a usage example.
-Do not print a study plan.
-
-## Calculation requirements
-
-- Print total hours, weekly hours, required weeks, and final-week hours.
-- Count a partial week as a whole required week.
-- For exact multiples, show a full final week rather than zero hours.
-- Keep the calculation in a named function, separate from printing.
-
-## Acceptance checks
-
-### Valid inputs
-
-| Arguments | Required weeks | Final-week hours | Verified |
-| --------- | -------------: | ---------------: | -------- |
-| `30 12`   |              3 |                6 | [x]      |
-| `24 12`   |              2 |               12 | [x]      |
-| `5 12`    |              1 |                5 | [x]      |
-| `1 1`     |              1 |                1 | [x]      |
-
-### Invalid inputs
-
-Each case must produce a clear error and usage example, without a plan.
-
-| Arguments    | Reason                      | Verified |
-| ------------ | --------------------------- | -------- |
-| `0 12`       | Total hours cannot be zero  | [x]      |
-| `30 0`       | Weekly hours cannot be zero | [x]      |
-| `-5 12`      | Negative value              | [x]      |
-| `30 2.5`     | Fractional value            | [x]      |
-| `30 twelve`  | Nonnumeric value            | [x]      |
-| `30 12hours` | Partially numeric text      | [x]      |
-| `30`         | Missing argument            | [x]      |
-| `30 12 4`    | Extra argument              | [x]      |
-
----
-
-## Constraints
-
-- Use JavaScript and Node.js without npm packages or frameworks.
-- No browser interface, persistence, or accounts.
-- Use the terminal to run the program and perform basic Git work.
-- Write the application code yourself.
-- Use documentation, hints, and review; do not submit a copied or
-  generated complete solution.
-- Be able to explain every submitted line.
-- This project runs locally and requires no paid infrastructure.
-
-## Git and reproducibility
-
-- Make at least four meaningful commits.
-- Use diffs to inspect changes before committing.
-- Keep prerequisites, usage, input rules, and examples accurate.
-- Verify that the program runs from a fresh local clone using this README.
-- Finish with a clean Git working tree.
-
----
-
-## Deliberate failure exercises
-
-Perform these experiments in your own local project.
-Repair each failure before considering the project finished.
-
-### 1. Incorrect rounding
-
-Temporarily round the required weeks down.
-
-Run the calculator with `30 12`, observe the result, explain the
-failure, repair it, and rerun both partial-week and exact-week cases.
-
-Record:
-
-- **Change made**: Replaced `Math.ceil(totalHours / weeklyHours)` with `Math.floor(totalHours / weeklyHours)`.
-- **Observed output**:
-  ```text
-  Total hours: 30 hours
-  Weekly hours: 12 hours
-  Required weeks: 2 weeks
-  Final-week hours: 6 hours
-  ```
-- **Why it failed**: \(30 / 12 = 2.5\). `Math.floor` rounds down to 2 weeks. In 2 weeks at 12 hours per week, the learner only finishes 24 hours of study. The remaining 6 hours cannot fit into the first 2 weeks, which means they must spill over into a 3rd calendar week. Partial weeks must count as an entire additional calendar week.
-- **Repair**: Restored `Math.ceil(totalHours / weeklyHours)`.
-- **Verification commands and results**:
-  - `node planner.js 30 12` ➔ `Required weeks: 3 weeks`, `Final-week hours: 6 hours` (PASS)
-  - `node planner.js 5 12` ➔ `Required weeks: 1 week`, `Final-week hours: 5 hours` (PASS)
-  - `node planner.js 24 12` ➔ `Required weeks: 2 weeks`, `Final-week hours: 12 hours` (PASS)
-  - `node planner.js 1 1` ➔ `Required weeks: 1 week`, `Final-week hours: 1 hour` (PASS)
-
-### 2. Incorrect working directory
-
-Run the usual command from the project's parent directory.
-
-Explain where Node looked for the file, then repair the path or
-change the current directory.
-
-Record:
-
-- **Command and working directory**: `node planner.js 30 12` executed from parent folder `/Users/itsbhavinrey/greenfield`.
-- **Observed error**:
-  ```text
-  Error: Cannot find module '/Users/itsbhavinrey/greenfield/planner.js'
-    code: 'MODULE_NOT_FOUND'
-  ```
-- **Why it failed**: When given a relative path like `planner.js`, Node resolves it against the process's Current Working Directory (`process.cwd()`). In the parent directory, Node looked for `/Users/itsbhavinrey/greenfield/planner.js`, where no such file exists.
-- **Repair**:
-  1. Change directory to the repository root: `cd studytrack && node planner.js 30 12`
-  2. Or specify the relative path from the parent directory: `node studytrack/planner.js 30 12`
-- **Verification command and result**:
-  `node studytrack/planner.js 30 12` executed from `/Users/itsbhavinrey/greenfield` ran successfully and outputted the 3-week study plan.
-
----
-
-## Learning approach
-
-- Read only the concepts needed for the current requirement.
-- Repeat the cycle: change, run, inspect, and commit.
-- Ask for clarification, hints, and review when needed.
-- Record confusing cases, your explanation, and any help used.
-- Treat working code and demonstrated understanding as separate things.
-- Preserve useful behavior and checks as later projects extend StudyTrack.
-
-### Concepts to look up
-
-- Current working directory; relative and absolute paths.
-- `process.argv`.
-- Strings versus numbers.
-- `Number.isInteger`.
-- Functions and conditions.
-- Rounding up and remainder.
-- Git working tree, staging, commit, diff, log, and clone.
-
-## Suggested pacing
-
-The curriculum estimates 3 weeks, or 30–45 hours total.
-At my planned 15 hours per week, that allows up to 45 hours.
-
-This is an estimate, not a deadline. Time includes reading, building,
-debugging, verification, and reporting.
-
-- Week 1: terminal practice, small JavaScript experiments, and commits.
-- Week 2: calculation and input validation.
-- Week 3: failure exercises, acceptance checks, and fresh-clone verification.
-
----
-
-## Definition of done
-
-- [x] All four valid and eight invalid acceptance cases pass.
-- [x] Both deliberate failures have observation, explanation, repair,
-      and verification notes.
-- [x] Calculation and printing are separate.
-- [x] I can explain every line.
-- [x] At least four meaningful commits exist.
-- [x] Git status is clean.
-- [x] A fresh local clone runs using this README.
-
----
-
-## Report-back checklist
-
-- [x] Repository path or link: `/Users/itsbhavinrey/greenfield/studytrack`
-- [x] `planner.js` and `README.md`.
-- [x] Actual output from all twelve acceptance examples.
-- [x] Output of `git log --oneline` and `git status`.
-- [x] Both failure reports.
-- [x] Any help used: Node.js standard runtime documentation (`process.argv`, `child_process`).
-- [x] My explanation of why 30 hours at 12 hours/week needs three weeks:
-  - In weeks 1 and 2, studying 12 hours each week yields \(12 + 12 = 24\) hours. Because \(30 - 24 = 6\) hours remains, the learner cannot finish within 2 weeks. Even though 6 hours is less than the 12-hour weekly capacity, it extends into a 3rd calendar week. Whole weeks must round up (\(\lceil 2.5 \rceil = 3\)).
-- [x] My explanation of how `"12"` differs from `12`:
-  - `"12"` is a primitive String (sequence of characters). In JavaScript, `process.argv` delivers all CLI arguments as strings. Adding `"12" + 5` produces string concatenation (`"125"`).
-  - `12` is a primitive Number (IEEE-754 double precision float). Adding `12 + 5` performs arithmetic addition (`17`). Validating with `Number(arg)` and `Number.isInteger()` ensures proper numerical operations.
-- [x] My explanation of staging versus committing:
-  - Working tree: The local files in your directory containing your active modifications.
-  - Staging (`git add`): Places selected file modifications into Git's "Index", curating the exact snapshot of changes ready to be saved.
-  - Committing (`git commit`): Permanently writes the staged snapshot to Git's local history with an immutable commit hash, author info, timestamp, and log message.
-
----
-
-## Optional stretch goals
-
-These do not block completion:
-
-- [x] Add `--help` (and `-h`): prints usage instructions and exits with code 0.
-- [x] Use singular `week` and `hour` correctly (e.g., `1 week`, `1 hour`, `3 weeks`, `6 hours`).
-
----
-
-## Verification from Fresh Clone
+Logs a completed study session with duration in minutes and a descriptive note.
 
 ```bash
-git clone /Users/itsbhavinrey/greenfield/studytrack /tmp/studytrack-fresh
-cd /tmp/studytrack-fresh
-node test/acceptance.js
-node planner.js 30 12
-rm -rf /tmp/studytrack-fresh
+node planner.js add <minutes> <note> [--file <path>]
+```
+
+- `<minutes>`: Positive whole number (`> 0`).
+- `<note>`: Non-empty string describing the session.
+- `--file <path>`: Optional custom data file path (defaults to `studytrack-data.json`).
+
+**Example:**
+
+```bash
+node planner.js add 45 "Completed JavaScript array methods exercises"
+```
+
+**Output:**
+```text
+Added session #1: 45 minutes - "Completed JavaScript array methods exercises"
+Total study time logged: 45 minutes (0.75 hours across 1 session)
+```
+
+### 3. Study Progress Summary (`summary`)
+
+Calculates accumulated study time from the persistent log and provides an updated estimate of weeks remaining toward a target study goal.
+
+```bash
+node planner.js summary <goal-hours> <weekly-hours> [--file <path>]
+```
+
+**Example:**
+
+```bash
+node planner.js summary 30 12
+```
+
+**Output (Partial Progress):**
+```text
+Goal hours: 30 hours
+Weekly hours: 12 hours
+Logged sessions: 2 sessions
+Completed time: 120 minutes (2 hours)
+Remaining hours: 28 hours
+Estimated weeks remaining: 3 weeks
+Final-week hours: 4 hours
+```
+
+**Output (Completed Goal):**
+```text
+Goal hours: 10 hours
+Weekly hours: 5 hours
+Logged sessions: 5 sessions
+Completed time: 600 minutes (10 hours)
+Remaining hours: 0 hours
+Status: Goal completed! 0 weeks remaining.
+```
+
+### 4. View Session History (`log` — Stretch Goal)
+
+Lists the most recent study sessions (up to the latest 5 sessions) with session IDs, timestamps, durations, and notes.
+
+```bash
+node planner.js log [--file <path>]
+```
+
+**Example Output:**
+```text
+Recent study sessions (showing latest 2 of 2):
+  #1 [9/19/2026, 1:33:04 AM] 45 min - "Learned Node fs module"
+  #2 [9/19/2026, 1:33:04 AM] 75 min - "Built storage module"
+```
+
+### 5. Help & Options
+
+```bash
+node planner.js --help
+# or
+node planner.js -h
 ```
 
 ---
 
-## Source
+## Data Storage & Persistence
 
-Adapted from Project 1, “Study-time calculator,” and the shared
-guidance in `full-stack-project-curriculum.md`.
+### Data Location
+
+By default, session data is stored in `studytrack-data.json` within the current working directory.
+
+You can override the data file location in two ways:
+1. **CLI Flag**: Add `--file <path>` or `-f <path>` to any command:
+   ```bash
+   node planner.js --file ./data/my-sessions.json add 60 "Studying"
+   ```
+2. **Environment Variable**: Set `STUDYTRACK_DATA_FILE`:
+   ```bash
+   export STUDYTRACK_DATA_FILE="/path/to/my-sessions.json"
+   node planner.js summary 30 12
+   ```
+
+### JSON Schema
+
+Sessions are stored as a JSON array of objects:
+
+```json
+[
+  {
+    "id": 1,
+    "minutes": 45,
+    "note": "Completed JavaScript array methods exercises",
+    "timestamp": "2026-09-18T20:03:04.123Z"
+  }
+]
+```
+
+- `id`: Auto-incrementing positive integer starting at 1.
+- `minutes`: Integer duration in minutes.
+- `note`: Cleaned, trimmed descriptive text.
+- `timestamp`: ISO 8601 UTC timestamp recorded at time of creation.
+
+---
+
+## Display Rounding & Conversion Rules (Requirement 3)
+
+1. **Minute-to-Hour Conversion**:
+   - Converted using exact floating-point division: \(\text{hours} = \text{minutes} / 60\).
+2. **Display Rounding Rule**:
+   - Completed hours and remaining hours are rounded to 2 decimal places using standard half-up rounding (\(\text{round}(\text{hours} \times 100) / 100\)).
+   - Clean formatting: Whole numbers are presented without trailing zeros (e.g. `2 hours` instead of `2.00 hours`; `0.75 hours`; `1.67 hours`).
+3. **Weeks Remaining Rule**:
+   - \(\text{remainingHours} = \max(0, \text{goalHours} - \text{completedHours})\).
+   - If \(\text{remainingHours} > 0\), required weeks are rounded up to the nearest whole integer: \(\lceil \text{remainingHours} / \text{weeklyHours} \rceil\).
+   - For exact multiples, the final week reflects the full weekly capacity rather than 0.
+   - If \(\text{remainingHours} == 0\), remaining weeks is 0, and the status displays `Goal completed! 0 weeks remaining.`
+
+---
+
+## Error & Corruption Handling (Requirement 4)
+
+- **Absent Data File**: If the data file does not exist when running `summary` or `log`, StudyTrack treats it as an empty log (0 sessions, 0 minutes completed) without raising an error or crashing.
+- **Corrupted JSON File**: If the data file exists but contains invalid JSON syntax or a non-array root structure:
+  - Prints a visible error to `stderr`:
+    ```text
+    Error: Data file at "<path>" is corrupted or contains invalid JSON: <details>
+    The corrupted file was preserved and not overwritten.
+    ```
+  - Exits with status code `1`.
+  - **Does not overwrite or erase** the corrupted file, allowing manual inspection and recovery.
+
+---
+
+## Running Tests
+
+Run all test suites:
+
+```bash
+npm test
+# or directly with Node:
+node --test test/*.test.js && node test/acceptance.js
+```
+
+Or run individual test suites:
+
+```bash
+# Pure calculation and boundary unit tests:
+node --test test/calculation.test.js
+
+# Storage persistence and corruption unit tests:
+node --test test/storage.test.js
+
+# Project 2 CLI integration and multi-run tests:
+node --test test/p2.test.js
+
+# Project 1 backward-compatibility acceptance tests:
+node test/acceptance.js
+```
+
+---
+
+## Deliberate Failure Exercises
+
+### Exercise 1: Incorrect Rounding (Project 1)
+- **Change made**: Replaced `Math.ceil(totalHours / weeklyHours)` with `Math.floor(totalHours / weeklyHours)`.
+- **Observed output**: `node planner.js 30 12` reported `Required weeks: 2 weeks`.
+- **Why it failed**: \(30 / 12 = 2.5\). Rounding down fails to allocate time for the remaining 6 hours, which require an additional calendar week.
+- **Repair**: Restored `Math.ceil`.
+
+### Exercise 2: Incorrect Working Directory (Project 1)
+- **Command & working directory**: `node planner.js 30 12` executed from parent directory `../`.
+- **Observed error**: `MODULE_NOT_FOUND`. Node looked for `planner.js` in the parent directory.
+- **Repair**: Specify path (`node studytrack/planner.js 30 12`) or `cd studytrack`.
+
+### Exercise 3: Corrupt JSON File Drill (Project 2)
+- **Experiment**:
+  1. Created a known-good data file with 2 sessions (90 total minutes).
+  2. Corrupted a disposable copy by injecting invalid JSON: `{"corrupted": true, broken syntax [}`.
+  3. Ran `node planner.js --file ./sessions.json summary 30 12`.
+- **Observed error**:
+  ```text
+  Error: Data file at ".../sessions.json" is corrupted or contains invalid JSON: Unexpected token 'b', "{"corrupted"... is not valid JSON
+  The corrupted file was preserved and not overwritten.
+  ```
+  Process exited with code `1`.
+- **Preservation verification**: Checked file content with `cat sessions.json`. The corrupt string was preserved byte-for-byte; StudyTrack did not overwrite it with `[]`.
+- **Recovery verification**: Restored the known-good backup. Reran `summary 30 12`. Correctly reported `Logged sessions: 2 sessions` and `Completed time: 90 minutes (1.5 hours)`.
+
+---
+
+## Report-Back & Questions
+
+### Why a unit test should not depend on your personal data file (Requirement Question)
+1. **Test Hermeticity and Reproducibility**: Unit tests must produce identical, deterministic results regardless of who runs them or what machine they run on. If a test relied on a personal data file, it would pass on one developer's computer (where specific sessions exist) but fail on a clean CI environment or another teammate's machine.
+2. **Preventing Accidental Data Loss**: A test suite that writes or resets files could accidentally wipe out, modify, or corrupt real, personal study history.
+3. **Isolation and Concurrency**: Using isolated, temporary mock data files allows tests to run in parallel without race conditions or shared state contamination.
+
+### Three-Run Transcript
+
+```bash
+# Run 1: Add first study session
+$ node planner.js --file ./demo-data.json add 45 "Learned Node.js modules"
+Added session #1: 45 minutes - "Learned Node.js modules"
+Total study time logged: 45 minutes (0.75 hours across 1 session)
+
+# Run 2: Add second study session
+$ node planner.js --file ./demo-data.json add 75 "Built file storage module"
+Added session #2: 75 minutes - "Built file storage module"
+Total study time logged: 120 minutes (2 hours across 2 sessions)
+
+# Run 3: Generate progress summary
+$ node planner.js --file ./demo-data.json summary 10 4
+Goal hours: 10 hours
+Weekly hours: 4 hours
+Logged sessions: 2 sessions
+Completed time: 120 minutes (2 hours)
+Remaining hours: 8 hours
+Estimated weeks remaining: 2 weeks
+Final-week hours: 4 hours
+```
+
+---
+
+## Verification from a Fresh Clone
+
+To verify that StudyTrack runs cleanly from a fresh clone using only this README:
+
+```bash
+# 1. Clone repository to a temporary location
+git clone /Users/itsbhavinrey/greenfield/studytrack /tmp/studytrack-fresh-verify
+
+# 2. Change directory
+cd /tmp/studytrack-fresh-verify
+
+# 3. Run full automated test suite (unit + acceptance)
+npm test
+
+# 4. Verify P1 calculator command
+node planner.js 30 12
+
+# 5. Verify P2 add and summary commands
+node planner.js --file ./fresh-demo.json add 60 "Fresh clone session"
+node planner.js --file ./fresh-demo.json summary 10 5
+node planner.js --file ./fresh-demo.json log
+
+# 6. Cleanup verification clone
+rm -rf /tmp/studytrack-fresh-verify
+```
+
+---
+
+## Definition of Done Checklist
+
+- [x] Data survives restarts and accumulated minutes are accurate across three separate process runs.
+- [x] Existing Project 1 calculator cases still pass with identical behavior.
+- [x] Separate modules for calculation (`src/calculation.js`), storage (`src/storage.js`), and CLI (`src/cli.js`).
+- [x] Tests cover boundary cases, empty history, partial progress, and completed goals.
+- [x] Absent data file handled gracefully as an empty log.
+- [x] Corrupt data triggers a clear error and is not silently replaced or overwritten.
+- [x] Fresh clone verified working using only this README.
