@@ -11,7 +11,9 @@ These notes explain every new idea in Project 3 using the real files: `web/index
 "Semantic" means the element says **what the content is**, not how it should look. The browser turns the HTML into two trees:
 
 - the **DOM**, which CSS styles, and
-- the **accessibility tree**, which screen readers, voice control and keyboard tools read.
+- the **accessibility tree**, which screen readers and voice control read.
+
+Keyboard Tab order is a separate thing: it does not come from the accessibility tree. The browser moves focus through focusable elements in **DOM order** (unless `tabindex` changes it); see section 10.
 
 The accessibility tree is built from element meanings. A `<div>` means nothing. A `<nav>` means "a set of navigation links".
 
@@ -20,10 +22,12 @@ In `index.html`:
 | Content | Element | Why this one |
 | --- | --- | --- |
 | Weekly availability (day -> hours) | `<dl>`, `<dt>`, `<dd>` | A description list is for name/value pairs. "Monday" is a name, "2 hours" its value. |
-| Three resources | `<ul>` of `<li>` | An unordered list: the three items are a group, and order does not matter. A screen reader announces "list, 3 items". |
+| Three resources | `<ul role="list">` of `<li>` | An unordered list: the three items are a group, and order does not matter. A screen reader announces "list, 3 items" (see the Safari caveat below). |
 | Sample plan | `<table>` with `<caption>`, `<th scope>` | The plan really is a grid of data (week x hours x focus). `scope="col"` tells assistive tech that "Hours" labels its column. `scope="row"` makes "1", "2", "3" label their rows. |
 | Calculator command | `<code>` | Marks computer text. |
 | Emphasis like "30 study hours" | `<strong>` | Strong importance, not just bold. |
+
+**Safari caveat: `list-style: none` can remove list semantics.** Both lists on this page (the nav links and the resources) are styled with `list-style: none` to hide the bullets. Safari (WebKit) treats a list without visible markers as possibly "not really a list" and drops its list role, so VoiceOver stops saying "list, 3 items". (WebKit makes an exception for lists inside `<nav>`, but relying on that is fragile.) The fix is to say it explicitly: both `<ul>`s have `role="list"`. That is plain HTML, not JavaScript, and in other browsers it is redundant but harmless. Not yet checked with VoiceOver by a human.
 
 ### 2. Landmarks
 
@@ -109,7 +113,7 @@ A **flex container** (`display: flex`) lays its direct children (the **flex item
 - `flex: 1 1 18rem` is shorthand for `flex-grow: 1; flex-shrink: 1; flex-basis: 18rem`. In words: "I'd like to be 18rem wide, I may grow to share spare space, and I may shrink." Two cards need 2 x 18rem + gap. When the container is narrower than that, the second card wraps below. At 1280px they sit side by side. At 360px they stack.
 - `min-width: 0` on flex items: by default a flex item will not shrink below its content's minimum width (for example a long word). Setting `0` lets it shrink, so it never pushes the page wider.
 - `justify-content: space-between`: pushes the first and last items to the ends. It puts "Monday" left and "2 hours" right in the availability rows, and the site name left and nav right in the header.
-- `align-items`: alignment on the cross axis. `center` in the header, `flex-end` in the form so the button lines up with the bottoms of the inputs.
+- `align-items`: alignment on the cross axis. `center` in the header. The form uses `flex-end`, meant to line the button up with the bottoms of the inputs **when they share one line**. Honest note: at 360px and 1280px that never happens. The three fields each want 14rem and the button is wide, so together they need more than the 64rem column, and the button always wraps onto its own line below the inputs (measured at 1280px: input bottoms at 1514px, button top at 1530px). On a line of its own the button's cross-axis alignment changes nothing you can see. The rule is kept because it is harmless and becomes correct if the button text gets shorter, but at the tested widths it has no visible effect.
 
 **Why flexbox and not grid?** Every row on this page is one-dimensional: a single line of things that may wrap. Grid shines when you need rows *and* columns to line up together. Flexbox with `flex-wrap` and a `flex-basis` gets the same result here with less code. The brief also says to use only one technique, so there is no grid at all.
 
@@ -132,7 +136,7 @@ How we checked: in Chrome DevTools device mode (or the scripted emulation in `re
 Keyboard users press **Tab** to move to the next interactive element and **Shift+Tab** to go back. Enter activates a link, and Space or Enter activates a button. Only interactive elements receive focus: `<a href>`, `<input>`, `<button>`, `<select>`, `<textarea>`. Normal text does not.
 
 - **Tab order = DOM order** when you avoid `tabindex` and CSS reordering. That is why the order in `report.md` matches the reading order.
-- **Skip link**: "Skip to main content" is the very first stop, so keyboard users can jump past the header and nav. It points to `#main`.
+- **Skip link**: "Skip to main content" is the very first stop, so keyboard users can jump past the header and nav. It points to `#main`. It has an 8px margin so its focus ring (3px outline + 2px offset) is not clipped by the window edge and does not overlap the navy header, where the orange ring would be only 2.54:1.
 - **Focus indicator**: `a:focus-visible, input:focus-visible, button:focus-visible { outline: 3px solid ...; outline-offset: 2px; }`. `:focus-visible` matches when the browser decides focus should be shown. It always does for keyboard focus and for text inputs. It usually does not for a mouse click on a button. `outline` does not take up layout space, so the ring never shifts the page. `outline-offset` leaves a small gap so the ring does not merge with the element's own border.
 - **Never write `outline: none` without a replacement.** The break exercise shows the result: the active field became nearly impossible to spot.
 
@@ -140,7 +144,7 @@ Keyboard users press **Tab** to move to the next interactive element and **Shift
 
 Contrast ratio compares the brightness (relative luminance) of two colours, from 1:1 (identical) to 21:1 (black on white). WCAG level AA asks for:
 
-- **4.5:1** for normal text, and 3:1 for large text (about 24px, or 18.5px bold).
+- **4.5:1** for normal text, and 3:1 for large text (18pt, about 24px; or 14pt bold, about 18.66px bold).
 - **3:1** for non-text things you need to see, such as focus rings and input borders.
 
 Every pair on this page is listed in `report.md` section 5. Examples: muted grey `#4a5562` on white is 7.59:1, which passes. The orange ring `#c2410c` on navy is only 2.54:1, which fails. That is why the header and footer use a yellow ring `#ffbf47` (8.02:1).
@@ -158,13 +162,13 @@ Check it yourself: in Chrome, right-click text, choose Inspect, then click the s
    - **One `<title>`**: "StudyTrack learner profile: goal, weekly availability and study plan". This is what a browser tab, a bookmark and a screen reader announce first. Descriptive titles say what is on the page, not just the site name.
    - `<link rel="stylesheet" href="styles.css">`: a relative path, so the page works when opened straight from disk.
 3. **Skip link**: the first element in `<body>`, so it is the first Tab stop.
-4. **`<header>`**: holds `<p class="site-name">StudyTrack</p>`. It is deliberately a paragraph, not a heading (see Part 3), followed by `<nav>` with a `<ul>` of five in-page links. A nav is a list of links, so `<ul>` lets assistive tech say "list, 5 items". Each `href="#goal"` matches a section's `id`.
+4. **`<header>`**: holds `<p class="site-name">StudyTrack</p>`. It is deliberately a paragraph, not a heading (see Part 3), followed by `<nav>` with a `<ul role="list">` of five in-page links. A nav is a list of links, so `<ul>` lets assistive tech say "list, 5 items" (`role="list"` keeps that in Safari despite `list-style: none`; see Part 1, section 1). Each `href="#goal"` matches a section's `id`.
 5. **`<main id="main">`**:
    - The `h1` and an intro paragraph.
    - `<div class="summary">`: a plain `div` because it is only a layout wrapper with no meaning. It is the flex container that puts Goal and Weekly availability side by side.
    - **Goal section**: `<section id="goal" aria-labelledby="goal-heading">`. The `id` is the nav target, and `aria-labelledby` names the region after its `h2`.
    - **Availability section**: the `<dl>`, with each `dt` and `dd` pair wrapped in a `<div>`. HTML allows that wrapper, and it gives CSS one box per day to lay out as a row.
-   - **Resources section**: `<ul class="resource-list">` with three `<li class="card">`. Each holds a link whose **text names the destination** ("MDN guide: basic concepts of flexbox") plus a one-line description.
+   - **Resources section**: `<ul class="resource-list" role="list">` with three `<li class="card">`. Each holds a link whose **text names the destination** ("MDN guide: basic concepts of flexbox") plus a one-line description.
    - **Plan section**: a sentence tying the numbers to the P1 calculator, then the table with `caption`, `thead`, `tbody` and `tfoot`, plus `scope` on the header cells.
    - **Form section**:
      - The note `<p id="preview-note">` starts with "Preview until Project 5."
@@ -186,7 +190,7 @@ The file is in six numbered sections, ordered so the cascade reads top to bottom
    - Consistent bottom margins on `p`, `ul`, `dl` and `table`, so spacing flows in one direction.
    - Links keep their underline, with tuned thickness and offset, so they are identifiable without relying on colour.
 4. **Components**:
-   - `.skip-link` gets padding and a background.
+   - `.skip-link` gets a margin, padding and a background.
    - `.site-header` gets navy with white text (13.17:1).
    - `.site-name` is big and bold, but it is still a `<p>`.
    - `.site-nav ul` removes bullets. Nav links are white and bold.
