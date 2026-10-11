@@ -3,6 +3,7 @@
 //
 // Usage: node scripts/serve.mjs [--port 8080] [--host 127.0.0.1]
 //        then open http://127.0.0.1:8080/studytrack-platform/
+// Other scripts can import { startServer } (check-planner.mjs does).
 //
 // Why a server at all: since Project 5 the page loads ES modules
 // (<script type="module">). Browsers refuse module scripts from file:// URLs,
@@ -18,7 +19,7 @@
 import { createServer } from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
 import { extname, join, normalize, sep } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const WEB_DIR = fileURLToPath(new URL('../web/', import.meta.url));
 const BASE = '/studytrack-platform/';
@@ -88,17 +89,35 @@ async function handle(req, res) {
   await send(res, 404, join(WEB_DIR, '404.html'), req.method);
 }
 
-const port = Number(option('--port', process.env.PORT || 8080));
-const host = option('--host', '127.0.0.1');
-const server = createServer((req, res) => {
-  handle(req, res)
-    .catch((err) => {
-      console.error(err);
-      if (!res.headersSent) res.writeHead(500);
-      res.end();
-    })
-    .finally(() => console.log(`${req.method} ${req.url} -> ${res.statusCode}`));
-});
-server.listen(port, host, () => {
-  console.log(`Serving web/ at http://${host}:${server.address().port}${BASE}`);
-});
+/**
+ * Starts the server. Port 0 asks the OS for any free port.
+ * @returns {Promise<{ server: import('node:http').Server, url: string }>}
+ */
+export function startServer({ port = 8080, host = '127.0.0.1', log = true } = {}) {
+  const server = createServer((req, res) => {
+    handle(req, res)
+      .catch((err) => {
+        console.error(err);
+        if (!res.headersSent) res.writeHead(500);
+        res.end();
+      })
+      .finally(() => {
+        if (log) console.log(`${req.method} ${req.url} -> ${res.statusCode}`);
+      });
+  });
+  return new Promise((resolve, reject) => {
+    server.on('error', reject);
+    server.listen(port, host, () => {
+      resolve({ server, url: `http://${host}:${server.address().port}${BASE}` });
+    });
+  });
+}
+
+// Run only when started directly (node scripts/serve.mjs), not when imported.
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+  const { url } = await startServer({
+    port: Number(option('--port', process.env.PORT || 8080)),
+    host: option('--host', '127.0.0.1'),
+  });
+  console.log(`Serving web/ at ${url}`);
+}
