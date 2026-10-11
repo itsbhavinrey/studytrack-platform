@@ -1,0 +1,85 @@
+# Publish web/ (the Project 3 study profile) to GitHub Pages.
+#
+# - push to main that touches web/ or this file: test, build, deploy.
+# - manual run (Actions tab or `gh workflow run pages.yml -f ref=<sha>`):
+#   deploy any earlier commit or branch. This is the rollback path.
+#
+# The site root is the contents of web/, so web/index.html is served at
+# https://itsbhavinrey.github.io/studytrack-platform/ and its relative
+# link "styles.css" resolves to .../studytrack-platform/styles.css.
+name: Publish study profile
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "web/**"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Commit SHA, branch or tag to publish (blank = the commit this run is on)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+# One deployment at a time; a newer run waits instead of cancelling a
+# deployment that is already in progress.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out the commit to publish
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+
+      - name: Set up Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+
+      - name: Run the test suite
+        run: npm test
+
+      - name: Assemble the site from web/
+        env:
+          REQUESTED_REF: ${{ inputs.ref }}
+        run: |
+          mkdir _site
+          cp -R web/. _site/
+          {
+            echo "commit: $(git rev-parse HEAD)"
+            echo "ref: ${REQUESTED_REF:-$GITHUB_REF}"
+            echo "run: $GITHUB_RUN_ID"
+          } > _site/version.txt
+          cat _site/version.txt
+          ls -la _site
+
+      - name: Configure Pages
+        uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
+
+      - name: Upload the site artifact
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
