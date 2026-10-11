@@ -718,7 +718,7 @@ rm -rf /tmp/studytrack-fresh-verify
 
 ### Project 6 Definition of Done
 
-- [x] All three endpoints follow their documented contracts (`test/api.test.js`, 20 tests; curl examples in `docs/projects/p06/report.md` section 3).
+- [x] All three endpoints follow their documented contracts (`test/api.test.js`, 21 tests; curl examples in `docs/projects/p06/report.md` section 3).
 - [x] Two-tab and restart checks pass (`npm run test:browser:log`, 21/21; report section 4).
 - [x] Invalid JSON and overlapping writes have defined outcomes (`400 invalid_json`; `409 write_conflict` + `Retry-After`, nothing lost; report section 3).
 - [x] Server-down recovery works and prior calculation tests remain green (Exercise 7; `npm test` 140/140 and 13/13 P1 acceptance cases).
