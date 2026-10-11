@@ -27,29 +27,31 @@ Two browser tabs add study sessions to one shared server-side log.
 
 ## Requirements checklist
 
-- [ ] R1. Serve the UI and API from one origin. Implement `GET /api/sessions`, `POST /api/sessions`, and `GET /health`.
-- [ ] R2. Accept only the documented session fields, reject malformed JSON and oversized bodies, and return consistent JSON errors.
-- [ ] R3. The browser lists and adds records through `fetch`; accidental double submission is prevented while a request is pending.
-- [ ] R4. Successful writes are persisted before success is acknowledged. Overlapping mutations of the single-process file store are rejected with a documented retryable response rather than silently losing data.
-- [ ] R5. Two tabs see the same records after refresh, and records survive a server restart.
-- [ ] R6. The working local version is reproducible. Remote deployment of the Node service is deferred to P22.
+Status: done. Each ticked item links to its evidence in [report.md](report.md); the optional stretch goal was not attempted.
+
+- [x] R1. Serve the UI and API from one origin. Implement `GET /api/sessions`, `POST /api/sessions`, and `GET /health`. ([report 2](report.md#2-endpoint-contracts-definition-of-done-1-r1-r2))
+- [x] R2. Accept only the documented session fields, reject malformed JSON and oversized bodies, and return consistent JSON errors. ([report 2-3](report.md#3-http-examples-success-malformed-input-overlap-dod-3))
+- [x] R3. The browser lists and adds records through `fetch`; accidental double submission is prevented while a request is pending. ([report 4](report.md#4-two-tabs-double-submission-overlap-and-restart-in-the-browser-dod-2-r3-r5))
+- [x] R4. Successful writes are persisted before success is acknowledged. Overlapping mutations of the single-process file store are rejected with a documented retryable response rather than silently losing data. ([report 3, 7](report.md#7-extra-drill-the-lost-update-the-guard-prevents-r4))
+- [x] R5. Two tabs see the same records after refresh, and records survive a server restart. ([report 4](report.md#4-two-tabs-double-submission-overlap-and-restart-in-the-browser-dod-2-r3-r5))
+- [x] R6. The working local version is reproducible. Remote deployment of the Node service is deferred to P22. ([report 9](report.md#9-github-pages-and-deployment-r6), README section 9)
 
 ## Constraints checklist
 
-- [ ] C1. No Express or framework router: method, path, headers and body are inspected by our own code.
-- [ ] C2. One server process and one writer; the file store does not pretend to support distributed concurrency.
-- [ ] C3. No blocking file operations inside request handlers: promise-based I/O only.
+- [x] C1. No Express or framework router: method, path, headers and body are inspected by our own code. ([report 6](report.md#6-constraints))
+- [x] C2. One server process and one writer; the file store does not pretend to support distributed concurrency. ([report 6](report.md#6-constraints))
+- [x] C3. No blocking file operations inside request handlers: promise-based I/O only. ([report 6](report.md#6-constraints))
 
 ## Break it on purpose
 
-- [ ] Stop the server while the page is open. Observe the fetch failure, display a recoverable message instead of an endless spinner, restart the server, and retry without adding a duplicate record. Record fault, symptom, evidence, repair, verification.
+- [x] Stop the server while the page is open. Observe the fetch failure, display a recoverable message instead of an endless spinner, restart the server, and retry without adding a duplicate record. Record fault, symptom, evidence, repair, verification. ([report 5](report.md#5-outage-report-server-stopped-while-the-page-is-open-break-it-on-purpose-dod-4))
 
 ## Definition of done
 
-- [ ] All three endpoints follow their documented contracts.
-- [ ] Two-tab and restart checks pass.
-- [ ] Invalid JSON and overlapping writes have defined outcomes.
-- [ ] Server-down recovery works and prior calculation tests remain green.
+- [x] All three endpoints follow their documented contracts. ([report 2](report.md#2-endpoint-contracts-definition-of-done-1-r1-r2))
+- [x] Two-tab and restart checks pass. ([report 4](report.md#4-two-tabs-double-submission-overlap-and-restart-in-the-browser-dod-2-r3-r5))
+- [x] Invalid JSON and overlapping writes have defined outcomes. ([report 3](report.md#3-http-examples-success-malformed-input-overlap-dod-3))
+- [x] Server-down recovery works and prior calculation tests remain green. ([report 5, 8](report.md#8-earlier-work-still-green-dod-4))
 
 ## Stretch goal (optional, does not block completion)
 
