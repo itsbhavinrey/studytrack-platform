@@ -1,0 +1,39 @@
+  [server] StudyTrack server listening on http://127.0.0.1:3456
+  [server] Study log: http://127.0.0.1:3456/studytrack-platform/log.html
+  [server] Data file: <tmp>/sessions.json
+== broken: open the page, save one session
+  [server] GET /studytrack-platform/log.html -> 200 (3.5 ms)
+  [server] GET /studytrack-platform/styles.css -> 200 (2.3 ms)
+  [server] GET /studytrack-platform/js/study-log.mjs -> 200 (2.1 ms)
+  [server] GET /studytrack-platform/js/sessions-api.mjs -> 200 (0.6 ms)
+  [server] GET /studytrack-platform/js/calculation.mjs -> 200 (1.0 ms)
+  [server] GET /api/sessions -> 200 (0.5 ms)
+  [network] GET /api/sessions -> 200 application/json
+  [server] GET /favicon.ico -> 404 (0.3 ms)
+  [console.info] [study-log] submit 1: POST /api/sessions (key dd754591-7dde-484e-8fc5-5e7f3fe3705a)
+  [server] POST /api/sessions -> 201 (8.7 ms)
+  [network] POST /api/sessions -> 201 application/json
+  [server] GET /api/sessions -> 200 (0.7 ms)
+  [network] GET /api/sessions -> 200 application/json
+  page: {"status":"Saved session #1.","button":"Save session","retry":false,"form":" / "}
+== stop the server (SIGINT, as Ctrl+C would)
+  [server] SIGINT received, finishing in-flight requests
+  exit: {"code":0,"sig":null}
+  $ curl -sS http://127.0.0.1:3456/health
+  curl: (7) Failed to connect to 127.0.0.1 port 3456 after 0 ms: Couldn't connect to server (exit 7)
+== submit a session while the server is down
+  [console.info] [study-log] submit 2: POST /api/sessions (key 71375522-ff49-4500-a711-805e5bfca859)
+  [network] POST /api/sessions failed: net::ERR_CONNECTION_REFUSED
+  [uncaught] NetworkError: The StudyTrack server could not be reached.
+  t+1s page: {"status":"Saving...","button":"Saving... (disabled)","retry":false,"form":"40 / During the outage"}
+  t+5s page: {"status":"Saving...","button":"Saving... (disabled)","retry":false,"form":"40 / During the outage"}
+  t+12s page: {"status":"Saving...","button":"Saving... (disabled)","retry":false,"form":"40 / During the outage"}
+  stored records: ["#1 30 Before the outage"]
+== restart the server
+  [server] StudyTrack server listening on http://127.0.0.1:3456
+  [server] Study log: http://127.0.0.1:3456/studytrack-platform/log.html
+  [server] Data file: <tmp>/sessions.json
+== no Try again button; press Save session
+  page: {"status":"Saving...","button":"Saving... (disabled)","retry":false,"form":"40 / During the outage"}
+  stored records: ["#1 30 Before the outage"]
+  [server] SIGINT received, finishing in-flight requests

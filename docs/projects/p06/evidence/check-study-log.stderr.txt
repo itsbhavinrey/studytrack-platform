@@ -1,0 +1,23 @@
+PASS  list shows a loading state while GET /api/sessions is pending
+PASS  empty log shows the empty state
+PASS  tab A: save shows success and lists the record
+PASS  tab A: the form is cleared after success
+PASS  tab B: does not change by itself (no polling)
+PASS  tab B: after a reload shows the record saved in tab A
+PASS  both tabs show the same records after refresh
+PASS  pending save disables the button and says "Saving..."
+PASS  double click + Enter while pending stores exactly one record
+PASS  a submit event during the pending save is ignored by the in-flight guard
+PASS  overlapping saves: the server answered one 409
+PASS  overlapping saves: the client said it was retrying
+PASS  overlapping saves: both records stored, none lost
+PASS  after a server restart both tabs list every record
+PASS  server down: a recoverable message replaces "Saving..."
+PASS  server down: the typed values are kept and Try again is offered
+PASS  after restart, Try again saves exactly one record
+PASS  lost response: the server had stored it, the page showed "Not saved"
+PASS  lost response: Try again reports "Already saved" and adds no duplicate
+PASS  hung request: a timeout message after about 8 s, button usable again
+PASS  the form has exactly one submit listener
+
+21/21 study-log browser checks passed

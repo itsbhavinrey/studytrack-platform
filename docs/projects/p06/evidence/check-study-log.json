@@ -1,0 +1,333 @@
+{
+  "origin": "http://127.0.0.1:64317",
+  "writeDelayMs": 400,
+  "doubleSubmitLogs": [
+    "[study-log] submit 1: POST /api/sessions (key d49cfd8c-5b06-4dbf-a806-d0ae7519725b)",
+    "[study-log] submit 2: POST /api/sessions (key 2922fd89-5fa7-4e10-9c58-77bfb4ff52b9)",
+    "[study-log] submit 3 ignored: a save is already pending"
+  ],
+  "overlapServerLog": [
+    "POST /api/sessions -> 409 (1.0 ms)",
+    "POST /api/sessions -> 201 (408.5 ms)",
+    "POST /api/sessions -> 201 (412.4 ms)"
+  ],
+  "stop1": {
+    "code": 0,
+    "signal": null
+  },
+  "stop2": {
+    "code": 0,
+    "signal": null
+  },
+  "outageConsole": [
+    "[study-log] submit 1: POST /api/sessions (key d49cfd8c-5b06-4dbf-a806-d0ae7519725b)",
+    "[study-log] submit 2: POST /api/sessions (key 2922fd89-5fa7-4e10-9c58-77bfb4ff52b9)",
+    "[study-log] submit 4: POST /api/sessions (key 704271ca-0cb5-43a8-aeee-58f66d37292f)",
+    "[study-log] submit 1: POST /api/sessions (key 5c193caa-8f29-4c89-ae86-ae1f9de7b5fb)",
+    "[study-log] save failed: NetworkError The StudyTrack server could not be reached."
+  ],
+  "finalRecords": [
+    {
+      "id": 1,
+      "minutes": 45,
+      "note": "Node http module"
+    },
+    {
+      "id": 2,
+      "minutes": 30,
+      "note": "REST status codes"
+    },
+    {
+      "id": 3,
+      "minutes": 20,
+      "note": "Double click test"
+    },
+    {
+      "id": 4,
+      "minutes": 25,
+      "note": "Overlap from tab B"
+    },
+    {
+      "id": 5,
+      "minutes": 15,
+      "note": "Overlap from tab A"
+    },
+    {
+      "id": 6,
+      "minutes": 40,
+      "note": "Saved during the outage"
+    },
+    {
+      "id": 7,
+      "minutes": 35,
+      "note": "Response lost on the way back"
+    }
+  ],
+  "serverLog": [
+    "StudyTrack server listening on http://127.0.0.1:64317",
+    "Study log: http://127.0.0.1:64317/studytrack-platform/log.html",
+    "Data file: <tmp>/sessions.json",
+    "GET /studytrack-platform/log.html -> 200 (4.0 ms)",
+    "GET /studytrack-platform/js/study-log.mjs -> 200 (0.9 ms)",
+    "GET /studytrack-platform/styles.css -> 200 (1.5 ms)",
+    "GET /studytrack-platform/js/calculation.mjs -> 200 (1.6 ms)",
+    "GET /studytrack-platform/js/sessions-api.mjs -> 200 (1.7 ms)",
+    "GET /api/sessions -> 200 (1.6 ms)",
+    "GET /favicon.ico -> 404 (0.5 ms)",
+    "GET /studytrack-platform/log.html -> 200 (0.4 ms)",
+    "GET /studytrack-platform/styles.css -> 200 (0.5 ms)",
+    "GET /studytrack-platform/js/study-log.mjs -> 200 (0.5 ms)",
+    "GET /studytrack-platform/js/calculation.mjs -> 200 (0.9 ms)",
+    "GET /studytrack-platform/js/sessions-api.mjs -> 200 (0.9 ms)",
+    "GET /api/sessions -> 200 (0.3 ms)",
+    "POST /api/sessions -> 201 (411.2 ms)",
+    "GET /api/sessions -> 200 (0.9 ms)",
+    "GET /studytrack-platform/log.html -> 200 (0.3 ms)",
+    "GET /studytrack-platform/styles.css -> 200 (0.6 ms)",
+    "GET /studytrack-platform/js/study-log.mjs -> 200 (0.6 ms)",
+    "GET /studytrack-platform/js/calculation.mjs -> 200 (0.3 ms)",
+    "GET /studytrack-platform/js/sessions-api.mjs -> 200 (0.4 ms)",
+    "GET /api/sessions -> 200 (0.4 ms)",
+    "GET /favicon.ico -> 404 (0.2 ms)",
+    "POST /api/sessions -> 201 (412.9 ms)",
+    "GET /api/sessions -> 200 (1.2 ms)",
+    "GET /api/sessions -> 200 (0.9 ms)",
+    "POST /api/sessions -> 201 (409.6 ms)",
+    "GET /api/sessions -> 200 (1.0 ms)",
+    "POST /api/sessions -> 409 (1.0 ms)",
+    "POST /api/sessions -> 201 (408.5 ms)",
+    "GET /api/sessions -> 200 (2.0 ms)",
+    "POST /api/sessions -> 201 (412.4 ms)",
+    "GET /api/sessions -> 200 (0.8 ms)",
+    "SIGINT received, finishing in-flight requests",
+    "StudyTrack server listening on http://127.0.0.1:64317",
+    "Study log: http://127.0.0.1:64317/studytrack-platform/log.html",
+    "Data file: <tmp>/sessions.json",
+    "GET /studytrack-platform/log.html -> 200 (2.5 ms)",
+    "GET /studytrack-platform/styles.css -> 200 (0.5 ms)",
+    "GET /studytrack-platform/js/study-log.mjs -> 200 (0.6 ms)",
+    "GET /studytrack-platform/js/calculation.mjs -> 200 (0.4 ms)",
+    "GET /studytrack-platform/js/sessions-api.mjs -> 200 (0.5 ms)",
+    "GET /api/sessions -> 200 (0.4 ms)",
+    "GET /studytrack-platform/log.html -> 200 (0.3 ms)",
+    "GET /studytrack-platform/styles.css -> 200 (0.4 ms)",
+    "GET /studytrack-platform/js/study-log.mjs -> 200 (0.4 ms)",
+    "GET /studytrack-platform/js/calculation.mjs -> 200 (0.3 ms)",
+    "GET /studytrack-platform/js/sessions-api.mjs -> 200 (0.3 ms)",
+    "GET /favicon.ico -> 404 (0.3 ms)",
+    "GET /api/sessions -> 200 (0.7 ms)",
+    "SIGINT received, finishing in-flight requests",
+    "StudyTrack server listening on http://127.0.0.1:64317",
+    "Study log: http://127.0.0.1:64317/studytrack-platform/log.html",
+    "Data file: <tmp>/sessions.json",
+    "POST /api/sessions -> 201 (414.6 ms)",
+    "GET /api/sessions -> 200 (1.3 ms)",
+    "POST /api/sessions -> 201 (411.7 ms)",
+    "POST /api/sessions -> 200 (1.4 ms)",
+    "GET /api/sessions -> 200 (1.2 ms)",
+    "SIGINT received, finishing in-flight requests"
+  ],
+  "finalStop": {
+    "code": 0,
+    "signal": null
+  },
+  "checks": [
+    {
+      "name": "list shows a loading state while GET /api/sessions is pending",
+      "ok": true
+    },
+    {
+      "name": "empty log shows the empty state",
+      "ok": true,
+      "detail": "No sessions logged yet. Saved sessions appear here for every tab."
+    },
+    {
+      "name": "tab A: save shows success and lists the record",
+      "ok": true,
+      "detail": {
+        "save": "Saved session #1: 45 minutes.",
+        "list": "1 session, 45 minutes (0.75 hours) in total. Newest first.",
+        "ids": [
+          1
+        ],
+        "notes": [
+          "Node http module"
+        ],
+        "saveDisabled": false,
+        "saveLabel": "Save session",
+        "retryVisible": false,
+        "minutes": "",
+        "note": ""
+      }
+    },
+    {
+      "name": "tab A: the form is cleared after success",
+      "ok": true
+    },
+    {
+      "name": "tab B: does not change by itself (no polling)",
+      "ok": true
+    },
+    {
+      "name": "tab B: after a reload shows the record saved in tab A",
+      "ok": true,
+      "detail": {
+        "save": "",
+        "list": "1 session, 45 minutes (0.75 hours) in total. Newest first.",
+        "ids": [
+          1
+        ],
+        "notes": [
+          "Node http module"
+        ],
+        "saveDisabled": false,
+        "saveLabel": "Save session",
+        "retryVisible": false,
+        "minutes": "",
+        "note": ""
+      }
+    },
+    {
+      "name": "both tabs show the same records after refresh",
+      "ok": true,
+      "detail": {
+        "A": [
+          2,
+          1
+        ],
+        "B": [
+          2,
+          1
+        ]
+      }
+    },
+    {
+      "name": "pending save disables the button and says \"Saving...\"",
+      "ok": true,
+      "detail": {
+        "save": "Saving...",
+        "list": "2 sessions, 75 minutes (1.25 hours) in total. Newest first.",
+        "ids": [
+          2,
+          1
+        ],
+        "notes": [
+          "REST status codes",
+          "Node http module"
+        ],
+        "saveDisabled": true,
+        "saveLabel": "Saving...",
+        "retryVisible": false,
+        "minutes": "20",
+        "note": "Double click test"
+      }
+    },
+    {
+      "name": "double click + Enter while pending stores exactly one record",
+      "ok": true,
+      "detail": [
+        "Node http module",
+        "REST status codes",
+        "Double click test"
+      ]
+    },
+    {
+      "name": "a submit event during the pending save is ignored by the in-flight guard",
+      "ok": true,
+      "detail": [
+        "[study-log] submit 1: POST /api/sessions (key d49cfd8c-5b06-4dbf-a806-d0ae7519725b)",
+        "[study-log] submit 2: POST /api/sessions (key 2922fd89-5fa7-4e10-9c58-77bfb4ff52b9)",
+        "[study-log] submit 3 ignored: a save is already pending"
+      ]
+    },
+    {
+      "name": "overlapping saves: the server answered one 409",
+      "ok": true,
+      "detail": [
+        "POST /api/sessions -> 409 (1.0 ms)",
+        "POST /api/sessions -> 201 (408.5 ms)",
+        "POST /api/sessions -> 201 (412.4 ms)"
+      ]
+    },
+    {
+      "name": "overlapping saves: the client said it was retrying",
+      "ok": true,
+      "detail": "A"
+    },
+    {
+      "name": "overlapping saves: both records stored, none lost",
+      "ok": true,
+      "detail": [
+        "Overlap from tab B",
+        "Overlap from tab A"
+      ]
+    },
+    {
+      "name": "after a server restart both tabs list every record",
+      "ok": true,
+      "detail": {
+        "stored": 5,
+        "A": [
+          5,
+          4,
+          3,
+          2,
+          1
+        ],
+        "B": [
+          5,
+          4,
+          3,
+          2,
+          1
+        ]
+      }
+    },
+    {
+      "name": "server down: a recoverable message replaces \"Saving...\"",
+      "ok": true,
+      "detail": "Not saved: The StudyTrack server could not be reached. It may be stopped or restarting. Your entry is still in the form. When the server is running, press Try again; it will not create a duplicate."
+    },
+    {
+      "name": "server down: the typed values are kept and Try again is offered",
+      "ok": true
+    },
+    {
+      "name": "after restart, Try again saves exactly one record",
+      "ok": true,
+      "detail": {
+        "save": "Saved session #6: 40 minutes.",
+        "count": 1
+      }
+    },
+    {
+      "name": "lost response: the server had stored it, the page showed \"Not saved\"",
+      "ok": true,
+      "detail": "Not saved: The StudyTrack server could not be reached. It may be stopped or restarting. Your entry is still in the form. When the server is running, press Try again; it will not create a duplicate."
+    },
+    {
+      "name": "lost response: Try again reports \"Already saved\" and adds no duplicate",
+      "ok": true,
+      "detail": {
+        "save": "Already saved as session #7; no duplicate was added.",
+        "count": 1
+      }
+    },
+    {
+      "name": "hung request: a timeout message after about 8 s, button usable again",
+      "ok": true,
+      "detail": {
+        "ms": 8107,
+        "save": "Not saved: The server did not answer within 8 seconds. It may be stopped or restarting. Your entry is still in the form. When the server is running, press Try again; it will not create a duplicate."
+      }
+    },
+    {
+      "name": "the form has exactly one submit listener",
+      "ok": true,
+      "detail": [
+        "submit"
+      ]
+    }
+  ],
+  "ok": true
+}
