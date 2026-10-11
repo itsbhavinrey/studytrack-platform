@@ -94,6 +94,22 @@ function stopServer() {
 
 const stored = () => JSON.parse(readFileSync(dataFile, 'utf8'));
 
+// Safety net: if the script ends any other way than through the `finally`
+// below (an uncaught error, or Node exiting because the event loop emptied
+// while waiting on something that never happens), do not leave the server
+// child running or its temporary data behind, and do not report success.
+let finished = false;
+process.on('beforeExit', () => {
+  if (!finished) {
+    process.stderr.write('FAIL  the script stopped before finishing (event loop emptied)\n');
+    process.exitCode = 1;
+  }
+});
+process.on('exit', () => {
+  server?.kill('SIGKILL');
+  if (!process.argv.includes('--keep-data')) rmSync(dataDir, { recursive: true, force: true });
+});
+
 // ---- a tab -----------------------------------------------------------------
 
 async function tab(chrome, name) {
@@ -358,6 +374,7 @@ try {
   if (!process.argv.includes('--keep-data')) rmSync(dataDir, { recursive: true, force: true });
 }
 
+finished = true;
 report.checks = checks;
 report.ok = checks.every((c) => c.ok);
 console.log(JSON.stringify(report, null, 2));
