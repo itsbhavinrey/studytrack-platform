@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>StudyTrack learner profile: goal, weekly availability and study plan</title>
   <link rel="stylesheet" href="styles.css">
+  <!-- Module scripts are deferred: this runs after the HTML is parsed. -->
+  <script type="module" src="js/planner.mjs"></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to main content</a>
@@ -17,7 +19,7 @@
         <li><a href="#availability">Weekly availability</a></li>
         <li><a href="#resources">Resources</a></li>
         <li><a href="#plan">Sample weekly plan</a></li>
-        <li><a href="#goal-form">Goal form preview</a></li>
+        <li><a href="#planner">Weekly planner</a></li>
       </ul>
     </nav>
   </header>
@@ -38,8 +40,9 @@
           <strong>30 study hours</strong>.
         </p>
         <p>
-          Project 4 published this page on the internet. Next up: the
-          interactive weekly planner in Project 5.
+          Project 4 published this page on the internet. Project 5 turned
+          the goal form into the interactive <a href="#planner">weekly
+          planner</a>.
         </p>
       </section>
 
@@ -135,35 +138,60 @@
       </table>
     </section>
 
-    <section id="goal-form" aria-labelledby="goal-form-heading">
-      <h2 id="goal-form-heading">Set a study goal</h2>
-      <p id="preview-note" class="preview-note">
-        <strong>Preview until Project 5.</strong>
-        This form does not submit or save anything yet. It shows the fields
-        the interactive planner will use.
+    <section id="planner" aria-labelledby="planner-heading">
+      <h2 id="planner-heading">Plan your weeks</h2>
+      <p id="planner-intro">
+        Enter a study goal, the total hours it needs and the hours you can
+        study each week. All three fields are required; hours are whole
+        numbers. The plan appears below the form without reloading the page.
       </p>
-      <form class="goal-form" aria-describedby="preview-note">
+      <noscript>
+        <p class="planner-noscript">
+          The planner needs JavaScript. The sample plan above shows the result
+          for a 30-hour goal at 12 hours per week.
+        </p>
+      </noscript>
+      <!--
+        Project 5: js/planner.mjs registers exactly one "submit" and one
+        "reset" listener on this form. No onclick/onsubmit attributes.
+        The inputs have no value attributes, so the native reset empties them.
+      -->
+      <form id="planner-form" class="goal-form" aria-describedby="planner-intro">
         <div class="field">
           <label for="goal-name">Goal name</label>
-          <input id="goal-name" name="goal-name" type="text" autocomplete="off" value="Public study profile">
+          <input id="goal-name" name="goalName" type="text" autocomplete="off" maxlength="80" aria-required="true">
+          <p id="goal-name-error" class="field-error"></p>
         </div>
         <div class="field">
           <label for="total-hours">Total hours needed</label>
-          <input id="total-hours" name="total-hours" type="number" min="1" step="1" inputmode="numeric" value="30">
+          <input id="total-hours" name="totalHours" type="text" inputmode="numeric" autocomplete="off" aria-required="true" aria-describedby="total-hours-hint">
+          <p id="total-hours-hint" class="field-hint">Whole hours, for example 30.</p>
+          <p id="total-hours-error" class="field-error"></p>
         </div>
         <div class="field">
           <label for="weekly-hours">Hours available per week</label>
-          <input id="weekly-hours" name="weekly-hours" type="number" min="1" step="1" inputmode="numeric" value="12">
+          <input id="weekly-hours" name="weeklyHours" type="text" inputmode="numeric" autocomplete="off" aria-required="true" aria-describedby="weekly-hours-hint">
+          <p id="weekly-hours-hint" class="field-hint">Whole hours, for example 12.</p>
+          <p id="weekly-hours-error" class="field-error"></p>
         </div>
-        <button type="button">Plan my weeks (available in Project 5)</button>
+        <div class="form-actions">
+          <button type="submit">Plan my weeks</button>
+          <button type="reset" class="button-secondary">Reset</button>
+        </div>
       </form>
+
+      <!-- Live region: in the page from the start, so screen readers notice
+           when planner.mjs changes its text. role="status" = polite. -->
+      <div id="plan-status" class="plan-status" role="status"></div>
+      <div id="plan-result" class="plan-result" hidden></div>
     </section>
   </main>
 
   <footer class="site-footer">
     <p>
-      StudyTrack, Projects 3 and 4 of the sixty-week curriculum. Static HTML
-      and CSS, no JavaScript, published with GitHub Pages.
+      StudyTrack, Projects 3 to 5 of the sixty-week curriculum. Semantic HTML,
+      hand-written CSS and one small browser module (no framework), published
+      with GitHub Pages.
     </p>
     <p><a href="#main">Back to the top of the profile</a></p>
   </footer>
