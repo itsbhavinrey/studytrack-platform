@@ -1,5 +1,7 @@
 # StudyTrack — Study-Time Calculator & Persistent Study Log
 
+> **About this repository.** `studytrack-platform` continues StudyTrack from **Project 3 onward** (Projects 3-52 of the curriculum). It was cloned from the original `studytrack` repository, which stays at Projects 1-2, with the full Git history preserved, so the Project 1 and Project 2 code and commits are still here.
+
 A terminal application for planning study goals, logging study sessions, and tracking progress over time.
 
 StudyTrack began as a stateless study-time calculator (**Project 1**) and has been extended into a persistent study log that survives process restarts (**Project 2**). **Project 3** adds a second runnable artifact: a static, accessible public study profile page in `web/` (HTML and CSS only, no JavaScript).
@@ -39,7 +41,7 @@ git --version
 ## Project Structure & Architecture
 
 ```text
-studytrack/
+studytrack-platform/
 ├── planner.js              # CLI entry point delegating to command handler
 ├── prd.md                  # Project 1 Product Requirements Document
 ├── prd2.md                 # Project 2 Product Requirements Document
@@ -303,15 +305,21 @@ Full details, numbers, and screenshots are in [`docs/projects/p03/report.md`](do
 
 - **Structure**: `header`, `nav` (named "Profile sections"), `main`, and `footer` landmarks; one `<title>`; one `h1` followed by five `h2`s with no skipped levels.
 - **Viewports**: at exactly 360px and 1280px (Chrome DevTools Protocol device emulation), `scrollWidth` equals the viewport width, so there is no horizontal scroll. Screenshots: [`profile-360.png`](docs/projects/p03/screenshots/profile-360.png) and [`profile-1280.png`](docs/projects/p03/screenshots/profile-1280.png).
-- **Keyboard check**: pressing Tab from the top reaches all 14 interactive elements in reading order:
-  1. Skip link
-  2. Five nav links
-  3. Three resource links
-  4. Goal name
-  5. Total hours needed
-  6. Hours available per week
-  7. Plan button
-  8. Back-to-top link
+- **Keyboard check**: pressing Tab from the top reaches all 14 interactive elements (10 links, 3 inputs, 1 button) in reading order:
+  1. Skip to main content (skip link)
+  2. Goal (nav)
+  3. Weekly availability (nav)
+  4. Resources (nav)
+  5. Sample weekly plan (nav)
+  6. Goal form preview (nav)
+  7. MDN reference: HTML elements (resource)
+  8. MDN guide: basic concepts of flexbox (resource)
+  9. W3C: Understanding WCAG contrast (minimum) (resource)
+  10. Goal name (input)
+  11. Total hours needed (input)
+  12. Hours available per week (input)
+  13. Plan my weeks (button)
+  14. Back to the top of the profile (footer link)
 
   Each one shows a 3px focus outline: orange `#c2410c` on light areas, yellow `#ffbf47` in the navy header and footer. Every input has a visible label, and its accessible name matches that label.
 - **Contrast**: all text pairs are 6.21:1 or higher (WCAG AA needs 4.5:1). Focus rings are 4.83:1 or higher against their background (needs 3:1).
@@ -396,8 +404,8 @@ Final-week hours: 4 hours
 To verify that StudyTrack runs cleanly from a fresh clone using only this README:
 
 ```bash
-# 1. Clone repository to a temporary location
-git clone /Users/itsbhavinrey/greenfield/studytrack /tmp/studytrack-fresh-verify
+# 1. Clone repository to a temporary location (replace <repo-url> with this repository's URL)
+git clone <repo-url> /tmp/studytrack-fresh-verify
 
 # 2. Change directory
 cd /tmp/studytrack-fresh-verify
