@@ -222,3 +222,55 @@ export function validatePlanInput(raw) {
     errors,
   };
 }
+
+/** Upper bounds for one logged session (Project 6 API contract). */
+export const SESSION_LIMITS = Object.freeze({ maxMinutes: 1440, maxNoteLength: 200 });
+
+/** The only fields a new session may have (Project 6 API contract). */
+export const SESSION_FIELDS = Object.freeze(['minutes', 'note']);
+
+/**
+ * Validates a new study session as received by the API or typed in the
+ * study-log form (Project 6). Uses Project 2's rules (positive whole minutes,
+ * non-empty note) plus upper bounds for a single session.
+ *
+ * `minutes` must be a real number, not text: the JSON API documents
+ * `"minutes": 45`, and the browser form converts its text before sending.
+ * Unknown fields are reported under the key `body`.
+ *
+ * @param {*} input - Parsed JSON body (any value)
+ * @returns {{ ok: boolean,
+ *             values: { minutes: number, note: string } | null,
+ *             errors: { body?: string, minutes?: string, note?: string } }}
+ */
+export function validateSessionInput(input) {
+  const errors = {};
+  if (input === null || typeof input !== 'object' || Array.isArray(input)) {
+    return { ok: false, values: null, errors: { body: 'The body must be a JSON object with "minutes" and "note".' } };
+  }
+
+  const unknown = Object.keys(input).filter((key) => !SESSION_FIELDS.includes(key));
+  if (unknown.length > 0) {
+    errors.body = `Unknown field(s): ${unknown.join(', ')}. Allowed: ${SESSION_FIELDS.join(', ')}.`;
+  }
+
+  const { minutes, note } = input;
+  if (minutes === undefined) {
+    errors.minutes = 'Enter the minutes studied.';
+  } else if (typeof minutes !== 'number' || !isPositiveInteger(minutes)) {
+    errors.minutes = 'Minutes must be a positive whole number, for example 45.';
+  } else if (minutes > SESSION_LIMITS.maxMinutes) {
+    errors.minutes = `Minutes must be at most ${SESSION_LIMITS.maxMinutes} (one day).`;
+  }
+
+  if (note === undefined) {
+    errors.note = 'Enter a note describing the session.';
+  } else if (!isValidNote(note)) {
+    errors.note = 'The note must be text that is not empty.';
+  } else if (note.trim().length > SESSION_LIMITS.maxNoteLength) {
+    errors.note = `The note must be at most ${SESSION_LIMITS.maxNoteLength} characters.`;
+  }
+
+  const ok = Object.keys(errors).length === 0;
+  return { ok, values: ok ? { minutes, note: note.trim() } : null, errors };
+}
