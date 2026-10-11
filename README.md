@@ -359,7 +359,7 @@ curl -i http://127.0.0.1:3000/api/sessions
 curl -i -X POST http://127.0.0.1:3000/api/sessions -H 'Content-Type: application/json' -d '{"minutes":45,'   # 400 invalid_json
 ```
 
-**What the page does**: it shows loading, empty, success and failure states; disables **Save session** while a save is pending (and ignores any extra submit); keeps your entry and offers **Try again** if the server cannot be reached or does not answer within 8 seconds; retries a `409` automatically after `Retry-After`; and sends one idempotency key per entry, so trying again never adds a duplicate.
+**What the page does**: it shows loading, empty, success and failure states; disables **Save session** while a save is pending (and ignores any extra submit); keeps your entry and offers **Try again** only when resending can succeed (the server cannot be reached, does not answer within 8 seconds, or answers `retryable: true`), not after a refusal such as `422`; retries a `409` automatically after `Retry-After`; and sends one idempotency key per entry, so trying again never adds a duplicate.
 
 ---
 
@@ -721,4 +721,4 @@ rm -rf /tmp/studytrack-fresh-verify
 - [x] All three endpoints follow their documented contracts (`test/api.test.js`, 20 tests; curl examples in `docs/projects/p06/report.md` section 3).
 - [x] Two-tab and restart checks pass (`npm run test:browser:log`, 21/21; report section 4).
 - [x] Invalid JSON and overlapping writes have defined outcomes (`400 invalid_json`; `409 write_conflict` + `Retry-After`, nothing lost; report section 3).
-- [x] Server-down recovery works and prior calculation tests remain green (Exercise 7; `npm test` 138/138 and 13/13 P1 acceptance cases).
+- [x] Server-down recovery works and prior calculation tests remain green (Exercise 7; `npm test` 140/140 and 13/13 P1 acceptance cases).

@@ -16,7 +16,7 @@ All outputs below were captured on 2026-10-11 on macOS with Node v24.14.0 and Go
 | Shared validation (`validateSessionInput`) | [`web/js/calculation.mjs`](../../../web/js/calculation.mjs) |
 | Browser API client (the only `fetch` caller) | [`web/js/sessions-api.mjs`](../../../web/js/sessions-api.mjs) |
 | Study log page and its script | [`web/log.html`](../../../web/log.html), [`web/js/study-log.mjs`](../../../web/js/study-log.mjs) |
-| Tests | [`test/api.test.js`](../../../test/api.test.js), [`test/session-store.test.js`](../../../test/session-store.test.js), [`test/session-input.test.js`](../../../test/session-input.test.js), [`test/server-constraints.test.js`](../../../test/server-constraints.test.js), [`test/web.test.js`](../../../test/web.test.js) (P6 part), [`scripts/check-study-log.mjs`](../../../scripts/check-study-log.mjs) (browser) |
+| Tests | [`test/api.test.js`](../../../test/api.test.js), [`test/session-store.test.js`](../../../test/session-store.test.js), [`test/session-input.test.js`](../../../test/session-input.test.js), [`test/server-constraints.test.js`](../../../test/server-constraints.test.js), [`test/sessions-api.test.js`](../../../test/sessions-api.test.js), [`test/web.test.js`](../../../test/web.test.js) (P6 part), [`scripts/check-study-log.mjs`](../../../scripts/check-study-log.mjs) (browser) |
 
 Reproduce: `npm start` (server on `http://127.0.0.1:3000`, study log at `/studytrack-platform/log.html`), `npm test`, `npm run test:browser:log`.
 
@@ -349,8 +349,8 @@ acknowledged (201): 1, stored: 1 -> [[1,"request 1"]]
 ```text
 $ npm test
 ...
-ℹ tests 138
-ℹ pass 138
+ℹ tests 140
+ℹ pass 140
 ℹ fail 0
 ...
 --- Testing Stretch Goal: --help ---

@@ -7,7 +7,8 @@
  *   empty    - "No sessions logged yet."
  *   success  - the list, or "Saved session #N"
  *   failure  - a message that says what happened and what to do, plus a
- *              way to try again; the typed values are kept
+ *              Try again button when a resend can succeed (network failure
+ *              or a retryable answer); the typed values are kept
  *
  * Same rules as P5: one listener per action, text only via textContent,
  * no innerHTML, no browser storage, no framework.
@@ -19,7 +20,7 @@ import {
   roundHours,
   validateSessionInput,
 } from './calculation.mjs';
-import { ApiError, NetworkError, addSession, listSessions } from './sessions-api.mjs';
+import { ApiError, NetworkError, addSession, canRetry, listSessions } from './sessions-api.mjs';
 
 const FIELDS = [
   { key: 'minutes', inputId: 'session-minutes', errorId: 'session-minutes-error' },
@@ -62,7 +63,7 @@ function describeSaveFailure(err) {
   if (err instanceof ApiError) {
     return `Not saved: the server answered HTTP ${err.status} (${err.code}): ${err.message}${err.retryable ? ' Press Try again.' : ''}`;
   }
-  return `Not saved: unexpected error (${err.message}). Press Try again.`;
+  return `Not saved: unexpected error (${err.message}). Reload the page and save again.`;
 }
 
 function describeLoadFailure(err) {
@@ -224,7 +225,9 @@ export function wireStudyLog(doc) {
       if (err instanceof ApiError && err.code === 'validation_failed') showFieldErrors(err.details);
       saveStatus.textContent = describeSaveFailure(err);
       setSaving(false);
-      retryButton.hidden = false;
+      // Only offer Try again when resending the same values can succeed:
+      // after a 422 the same entry would be refused again.
+      retryButton.hidden = !canRetry(err);
     }
   }
 

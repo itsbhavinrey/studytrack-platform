@@ -36,7 +36,7 @@ Before Project 6, each browser had only its own memory: the P5 planner forgot ev
 | Storage | `src/storage.js` keeps its P2 synchronous API for the CLI and gains a promise API for the server: `readSessionsAsync`, `writeSessionsAsync` (atomic), `createSessionStore` (single writer, idempotent add). |
 | Shared rules | `validateSessionInput()` in `web/js/calculation.mjs`: one definition of a valid session for the server and the browser. |
 | Browser | `web/log.html`, `web/js/study-log.mjs` (page behaviour) and `web/js/sessions-api.mjs` (the only `fetch` caller). `index.html` and the P5 planner are unchanged. |
-| Tests | `test/api.test.js` (real server), `test/session-store.test.js`, `test/session-input.test.js`, `test/server-constraints.test.js`, new cases in `test/web.test.js`; `scripts/check-study-log.mjs` for two real Chrome tabs. |
+| Tests | `test/api.test.js` (real server), `test/session-store.test.js`, `test/session-input.test.js`, `test/server-constraints.test.js`, `test/sessions-api.test.js`, new cases in `test/web.test.js`; `scripts/check-study-log.mjs` for two real Chrome tabs. |
 
 ## 3. New topics, explained against this code
 
@@ -221,7 +221,7 @@ Each asynchronous operation on the page has four visible states:
 | loading | "Loading sessions...", list `aria-busy`, Refresh disabled | "Saving...", button disabled with label "Saving...", form `aria-busy` |
 | empty | "No sessions logged yet. ..." | (n/a) |
 | success | the list, newest first, with a total | "Saved session #N: M minutes." (or "Already saved as session #N; ...") |
-| failure | "Could not load sessions: ..." + what to do | "Not saved: ..." + **Try again**, values kept |
+| failure | "Could not load sessions: ..." + what to do | "Not saved: ...", values kept; **Try again** only if a resend can succeed |
 
 The P5 rules still hold: text only through `textContent`, one listener per action (checked by `test/web.test.js` and by `DOMDebugger.getEventListeners` in the browser check), messages in `role="status"` live regions that exist from page load.
 
@@ -287,7 +287,7 @@ The P5 static file handler moved here unchanged in behaviour (GET/HEAD only, MIM
 
 ### `web/js/sessions-api.mjs` (new)
 
-The browser's API client and the only `fetch()` caller (checked in `test/web.test.js`). Every request has `Accept: application/json`, `cache: 'no-store'` and an 8-second timeout. It classifies outcomes into `NetworkError` and `ApiError` (section 6). `addSession()` sends `Idempotency-Key` and retries `write_conflict` up to 3 times after `Retry-After` seconds, reporting each retry through `onRetry` so the page can say so.
+The browser's API client and the only `fetch()` caller (checked in `test/web.test.js`). Every request has `Accept: application/json`, `cache: 'no-store'` and an 8-second timeout. It classifies outcomes into `NetworkError` and `ApiError` (section 6). `addSession()` sends `Idempotency-Key` and retries `write_conflict` up to 3 times after `Retry-After` seconds, reporting each retry through `onRetry` so the page can say so. `canRetry(err)` says whether resending the same request can succeed: yes for a `NetworkError` or an `ApiError` with `retryable: true`, no for a 422 or any other refusal.
 
 ### `web/js/study-log.mjs` (new)
 
@@ -297,7 +297,7 @@ The browser's API client and the only `fetch()` caller (checked in `test/web.tes
 - `draft` - `{ key, minutes, note }`. The same values reuse the same idempotency key; changed values get a new `crypto.randomUUID()` (available on secure origins, which includes `http://127.0.0.1`). Cleared after a success.
 - `loadNumber` - the stale-response guard for the list.
 
-The `catch` in `onSubmit` is the drill's repair: message by error type, button re-enabled, values kept, Try again shown.
+The `catch` in `onSubmit` is the drill's repair: message by error type, button re-enabled, values kept, and Try again shown when `canRetry(err)` is true. It is hidden after a 422: resending values the server refused would only be refused again.
 
 ### `web/log.html` (new)
 
@@ -321,6 +321,7 @@ Real-browser checks against a real server *process* (so "stop the server" is a r
 - `test/session-store.test.js` - promise API, atomic write leaves no temp file, overlap rejected and lock released, 10 concurrent adds lose nothing acknowledged, idempotent add, corrupt file untouched.
 - `test/api.test.js` - every endpoint and error against a real server on port 0, including chunked 413, non-UTF-8 400, overlap 409 and restart.
 - `test/server-constraints.test.js` - C1 and C3 in the source.
+- `test/sessions-api.test.js` - `canRetry`: Try again for network failures and retryable answers, not for 422/500/404 or page bugs.
 - `test/web.test.js` - log.html loads one module; three listeners; only `sessions-api.mjs` calls `fetch`, with a timeout.
 
 ### `package.json`

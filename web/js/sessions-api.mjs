@@ -45,6 +45,19 @@ export class ApiError extends Error {
   }
 }
 
+/**
+ * Can sending the same request again succeed? Yes when no answer arrived
+ * (NetworkError: the server may be back, and the idempotency key prevents a
+ * duplicate) or when the server said so (retryable: a 409 write_conflict).
+ * Not for a 422 or other refusal: the same values get the same answer.
+ *
+ * @param {unknown} err
+ * @returns {boolean}
+ */
+export function canRetry(err) {
+  return err instanceof NetworkError || (err instanceof ApiError && err.retryable);
+}
+
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 /**
