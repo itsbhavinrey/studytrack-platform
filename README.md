@@ -12,14 +12,19 @@ StudyTrack began as a stateless study-time calculator (**Project 1**) and has be
 
 - **Project 1**: Understand terminal environments, Node CLI execution, pure calculations, input validation, and Git version control.
 - **Project 2**: Build modular JavaScript/Node applications, design JSON data models, implement file persistence, handle absent and corrupted data safely, and write thorough unit and integration test suites.
-- **Project 4**: Trace a real browser request (DNS, HTTPS, HTTP status and content type), publish a static artifact, use a branch + pull request + merge workflow, and practise rollback.
 - **Project 3**: Learn the browser document model with semantic HTML (landmarks, headings, lists, labels), the CSS cascade and box model, one responsive layout technique (flexbox), and keyboard and contrast accessibility checks.
+- **Project 4**: Trace a real browser request (DNS, HTTPS, HTTP status and content type), publish a static artifact, use a branch + pull request + merge workflow, and practise rollback.
 
 ### Learning Topics
 
 - **Frontend > JS / TS / Node**: Arrays, objects, modules (CommonJS), JSON serialization, file system persistence (`fs`), and pure functions.
 - **Common > Testing and Performance**: Unit testing with Node's native test runner (`node:test`), assertions (`node:assert`), boundary value analysis, and process-level integration testing.
 - **Common > Documentation**: Comprehensive setup, reproducible examples, and failure drills.
+- **Frontend > CSS** (Project 3): Semantic HTML for headings, navigation, forms and lists; the cascade, box model, and a responsive flexbox layout.
+- **Common > Testing and Performance** (Project 3): Keyboard and basic accessibility checks.
+- **Common > Fundamentals > Networking** (Project 4): HTTP/HTTPS, URLs, DNS, requests, responses and status codes.
+- **Common > Dev environment and deployment** (Project 4): Publishing a static artifact (GitHub Pages via GitHub Actions).
+- **Common > VCS and hosting > GitHub** (Project 4): Remote branches, a pull request, and the merge workflow.
 
 ---
 
@@ -29,6 +34,7 @@ StudyTrack began as a stateless study-time calculator (**Project 1**) and has be
 - **Git**: `v2.0.0` or higher (built and verified with `2.50.1`).
 - Operating system: macOS, Linux, or Windows.
 - **Zero third-party dependencies**: Uses only Node.js standard libraries (`node:fs`, `node:path`, `node:os`, `node:child_process`, `node:test`, `node:assert`).
+- **Optional, Project 4 checks**: `npm run check:site` needs Node.js `v22` or higher (global `fetch` and `WebSocket`) and Google Chrome (set `CHROME_PATH` if it is not at the default macOS location). The DNS/HTTP/HTTPS evidence commands use `dig`, `curl` and `openssl`. None of these are needed for the CLI or `npm test`.
 
 Check your installed versions:
 
@@ -58,12 +64,12 @@ studytrack-platform/
 │   └── check-site.mjs      # Project 4: headless-Chrome network + viewport check of a URL
 ├── docs/
 │   └── projects/
-│       ├── p04/            # Project 4 prd, report (DNS/HTTP/rollback evidence), learning notes, screenshots
-│       └── p03/
-│           ├── prd.md      # Project 3 brief as a checklist, plus build decisions
-│           ├── report.md   # Viewport, keyboard, contrast checks and failure report
-│           ├── learning.md # Concept notes, code walkthrough, self-quiz
-│           └── screenshots/ # 360px/1280px pages, focus states, break before/after
+│       ├── p03/
+│       │   ├── prd.md      # Project 3 brief as a checklist, plus build decisions
+│       │   ├── report.md   # Viewport, keyboard, contrast checks and failure report
+│       │   ├── learning.md # Concept notes, code walkthrough, self-quiz
+│       │   └── screenshots/ # 360px/1280px pages, focus states, break before/after
+│       └── p04/            # Project 4 prd, report (DNS/HTTP/rollback evidence), learning notes, screenshots
 ├── src/
 │   ├── calculation.js      # Pure calculation functions, unit conversions, validation
 │   ├── storage.js          # File persistence, load/save, and corrupt data protection
