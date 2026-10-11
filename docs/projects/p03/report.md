@@ -4,7 +4,7 @@ All numbers and outputs below were observed on 2026-10-11 with Google Chrome 155
 
 ## 1. Repository and files
 
-- Repository: `/Users/itsbhavinrey/greenfield/studytrack` (branch `main`). The Node CLI from P1/P2 is unchanged and `npm test` still passes.
+- Repository: this repository (`studytrack-platform`, branch `main`); all paths below are relative to its root. The Node CLI from P1/P2 is unchanged and `npm test` still passes.
 - Web files:
   - `web/index.html`: the page structure (landmarks, headings, lists, data table, form).
   - `web/styles.css`: base cascade and typography, the flexbox layout, focus styles.
@@ -18,7 +18,7 @@ Open the page with `open web/index.html` (macOS) from the repository root, or dr
 | # | Requirement | Evidence |
 | --- | --- | --- |
 | R1 | Landmarks, one descriptive title, logical headings | The accessibility tree reports `banner`, `navigation "Profile sections"`, `main`, `contentinfo`. Title: `StudyTrack learner profile: goal, weekly availability and study plan`. Headings in DOM order: h1 "Study profile: learning to build for the web", then h2 "Goal", "Weekly availability", "Resources", "Sample weekly plan", "Set a study goal". One h1 and no skipped levels. |
-| R2 | Goal, availability, resources and plan in appropriate HTML; meaningful link text | Goal: `<section>` with paragraphs. Availability: `<dl>` of day and hours (sums to 12). Resources: `<ul>` of three links named after their destination. Plan: data `<table>` with `<caption>`, `scope="col"`/`scope="row"` headers, 12 + 12 + 6 = 30 h over 3 weeks (the same result as `node planner.js 30 12`). No link says "click here" or "read more" (all 12 link names are listed in the tab route below). |
+| R2 | Goal, availability, resources and plan in appropriate HTML; meaningful link text | Goal: `<section>` with paragraphs. Availability: `<dl>` of day and hours (sums to 12). Resources: `<ul>` of three links named after their destination. Plan: data `<table>` with `<caption>`, `scope="col"`/`scope="row"` headers, 12 + 12 + 6 = 30 h over 3 weeks (the same result as `node planner.js 30 12`). No link says "click here" or "read more". The page has 10 links (1 skip link + 5 nav links + 3 resource links + 1 back-to-top link), and all 10 link names are listed in the tab route below; the other 4 tab stops are the three inputs and the button. |
 | R3 | 360px and 1280px without horizontal scroll | See section 4. At both widths `scrollWidth == clientWidth`, and no element's right edge passes the viewport. |
 | R4 | Labelled, non-submitting form, marked as preview until P5 | Three inputs with visible `<label for>`; accessible names "Goal name", "Total hours needed", "Hours available per week". The form's accessible description is the visible note "Preview until Project 5. This form does not submit or save anything yet..." Pressing Enter in "Total hours needed" and clicking the button both left the URL unchanged (`file:///.../web/index.html`, no `?total-hours=...`), so nothing was submitted. |
 | R5 | Keyboard reachable with visible focus; contrast verified with a browser tool | All 14 focusable elements are reached in DOM order, each with a 3px solid outline while `:focus-visible` (section 3). Contrast was measured from Chrome's computed styles (section 5). |
@@ -33,7 +33,7 @@ Route: the page was loaded at 1280x900, and `Tab` was pressed repeatedly from th
 
 | Tab | Element | Role | Accessible name | Focus outline (computed) |
 | --- | --- | --- | --- | --- |
-| 1 | `a.skip-link` -> `#main` | link | Skip to main content | solid 3px rgb(194,65,12), and the link turns dark with white text |
+| 1 | `a.skip-link` -> `#main` | link | Skip to main content | solid 3px rgb(194,65,12) with 2px offset, and the link turns dark with white text. An 8px margin keeps the whole ring on screen and on the light page background, 3px clear of the navy header |
 | 2 | nav `a` -> `#goal` | link | Goal | solid 3px rgb(255,191,71) |
 | 3 | nav `a` -> `#availability` | link | Weekly availability | solid 3px rgb(255,191,71) |
 | 4 | nav `a` -> `#resources` | link | Resources | solid 3px rgb(255,191,71) |
@@ -48,7 +48,7 @@ Route: the page was loaded at 1280x900, and `Tab` was pressed repeatedly from th
 | 13 | `button` (type="button") | button | Plan my weeks (available in Project 5) | solid 3px rgb(194,65,12) |
 | 14 | footer `a` -> `#main` | link | Back to the top of the profile | solid 3px rgb(255,191,71) |
 
-The next `Tab` moved focus out of the document. The order matches the visual reading order, because nothing uses `tabindex` or reorders content with CSS. Focus screenshots: `screenshots/focus-nav-link.png`, `screenshots/focus-goal-name-input.png`, `screenshots/focus-footer-link.png`, `screenshots/break-after-repair-*.png`.
+The next `Tab` moved focus out of the document. The order matches the visual reading order, because nothing uses `tabindex` or reorders content with CSS. Focus screenshots: `screenshots/focus-skip-link-360.png`, `screenshots/focus-skip-link-1280.png`, `screenshots/focus-nav-link.png`, `screenshots/focus-goal-name-input.png`, `screenshots/focus-footer-link.png`, `screenshots/break-after-repair-*.png`.
 
 What this does **not** cover, and still needs the owner:
 
@@ -88,7 +88,9 @@ Ratios use the WCAG 2.x relative-luminance formula. Text pairs were collected **
 | #c2410c focus ring | #12324f | 2.54:1 | *rejected*: this is why the header/footer override exists | 3 | no (not used) |
 | #4a5562 input border | #ffffff / #f5f7fa | 7.59:1 / 7.07:1 | input boundary | 3 | yes |
 | #8a5a00 note border | #fff4d6 | 5.41:1 | preview note stripe (decorative) | n/a | - |
-| #c5ccd6 card border | #ffffff | 1.62:1 | card outlines; decorative only, cards are also separated by spacing | n/a | - |
+| #c5ccd6 card border | #f5f7fa page | 1.51:1 | card outlines, measured against the page colour outside the card; decorative only, cards are also separated by spacing and their white fill | n/a | - |
+
+Skip-link focus ring: the skip link was first placed at the very top-left corner (0,0). Its ring was then partly cut off by the viewport edge, and its bottom edge overlapped the navy header, where the orange ring is only 2.54:1. The skip link now has an 8px margin. The ring reaches 5px outside the link (3px outline + 2px offset), so it sits fully on screen and touches only the `#f5f7fa` page background on both sides (4.83:1), with 3px of page background between it and the header. Measured with device emulation at 360px and 1280px: ring outer box from (3,3), header top at 57.6px, ring bottom at 54.6px.
 
 Owner follow-up: open DevTools, inspect any text, and click the colour swatch to see Chrome's own contrast readout. Lighthouse's accessibility audit is also worth running. Both are browser tools that take a few seconds by hand.
 
