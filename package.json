@@ -7,6 +7,7 @@
     "node": ">=22.12"
   },
   "scripts": {
+    "start": "node server/main.mjs",
     "test": "node --test test/*.test.js && node test/acceptance.js",
     "test:unit": "node --test test/calculation.test.js test/storage.test.js",
     "test:integration": "node --test test/p2.test.js",
