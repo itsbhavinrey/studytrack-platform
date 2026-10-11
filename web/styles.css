@@ -88,9 +88,13 @@ code {
 
 /* 4. Components ----------------------------------------------------------- */
 
-/* Skip link: first thing a keyboard user reaches. */
+/* Skip link: first thing a keyboard user reaches. The margin keeps it off
+   the viewport edge and away from the navy header, so its whole focus ring
+   (3px outline + 2px offset = 5px outside the box) is drawn on the light
+   page background instead of being clipped or overlapping the header. */
 .skip-link {
   display: inline-block;
+  margin: var(--space-2);
   padding: var(--space-2) var(--space-3);
   background: var(--color-surface);
 }
@@ -389,7 +393,9 @@ button:focus-visible {
   border-color: var(--color-text);
 }
 
-/* The skip link is the first stop on the tab route; make it obvious. */
+/* The skip link is the first stop on the tab route; make it obvious. Its
+   ring stays orange: thanks to the margin above, both sides of the ring
+   touch only the light page background (4.83:1), never the navy header. */
 .skip-link:focus-visible {
   background: var(--color-text);
   color: var(--color-surface);
