@@ -12,7 +12,8 @@
     "test:integration": "node --test test/p2.test.js",
     "test:acceptance": "node test/acceptance.js",
     "test:web": "node --test test/web.test.js",
-    "check:site": "node scripts/check-site.mjs"
+    "check:site": "node scripts/check-site.mjs",
+    "serve": "node scripts/serve.mjs"
   },
   "keywords": [
     "studytrack",
