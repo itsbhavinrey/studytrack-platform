@@ -10,6 +10,8 @@ All outputs below were captured on 2026-10-11 from macOS with `dig` 9.10.6, `cur
 | Repository | https://github.com/itsbhavinrey/studytrack-platform (public) |
 | Publication PR | [#1 Publish the study profile to GitHub Pages](https://github.com/itsbhavinrey/studytrack-platform/pull/1): branch `p04/publish-github-pages`, commits `864ae83` (prd) and `4803870` (workflow), merge commit `e413661` |
 | Follow-up PR | [#2 Verify the published site and add a 404 page](https://github.com/itsbhavinrey/studytrack-platform/pull/2): branch `p04/verify-and-404`, 5 commits, merge commit `c797230` |
+| Docs PR | [#3 P4 docs: report, learning notes, README publishing procedure, .gitignore](https://github.com/itsbhavinrey/studytrack-platform/pull/3): branch `p04/docs`. Docs and `.gitignore` only, so the workflow's `paths` filter does not redeploy and the served commit stays `c797230` |
+| Branch cleanup | After PRs #1 and #2 merged, `p04/publish-github-pages` and `p04/verify-and-404` were deleted on GitHub (`git push origin --delete ...`); the merged PRs still record them |
 | Deployed commit now | `c79723033d224484b6edb408c4fabe457fdae3f0` (merge of PR #2), served by Actions run 38146012159 |
 | Site files | `web/index.html`, `web/styles.css`, `web/404.html`; the workflow adds `version.txt` |
 | Workflow | `.github/workflows/pages.yml` |
