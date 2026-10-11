@@ -27,29 +27,31 @@ Visitors enter a study goal and weekly hours and immediately receive an accessib
 
 ## Requirements checklist
 
-- [ ] R1. Reuse the pure calculation module in the browser; do not import Node-only modules into it.
-- [ ] R2. Handle form submission without a page reload and apply P1's input rules.
-- [ ] R3. Show an inline error associated with the relevant field; announce an updated result accessibly.
-- [ ] R4. Add a reset button that clears values, errors, and results; verify five repeated submit/reset cycles.
-- [ ] R5. Keep one event handler per action; explain a closure used by a handler.
-- [ ] R6. Capture one browser performance recording and identify a DOM change that triggers layout and a visual change that only needs painting.
+Status: done. Each ticked item links to its evidence in [report.md](report.md); the optional stretch goal was not attempted.
+
+- [x] R1. Reuse the pure calculation module in the browser; do not import Node-only modules into it. ([report section 1](report.md#1-live-url-shared-module-and-browser-script))
+- [x] R2. Handle form submission without a page reload and apply P1's input rules. ([report section 3](report.md#3-all-p1-input-cases-in-the-browser-definition-of-done-1))
+- [x] R3. Show an inline error associated with the relevant field; announce an updated result accessibly. ([report sections 3 and 5](report.md#5-keyboard-and-error-announcements-definition-of-done-3-r3))
+- [x] R4. Add a reset button that clears values, errors, and results; verify five repeated submit/reset cycles. ([report section 4](report.md#4-repeated-submitreset-cycles-definition-of-done-2-r4))
+- [x] R5. Keep one event handler per action; explain a closure used by a handler. ([report section 9](report.md#9-constraints-c1-c3-and-one-handler-per-action-r5), [learning 3.3](learning.md#33-closures-and-event-handler-state))
+- [x] R6. Capture one browser performance recording and identify a DOM change that triggers layout and a visual change that only needs painting. ([report section 7](report.md#7-performance-capture-layout-versus-paint-r6))
 
 ## Constraints checklist
 
-- [ ] C1. No React, no form library, no browser storage (`localStorage`, `sessionStorage`, IndexedDB, cookies).
-- [ ] C2. No inline event attributes (`onclick=` etc.) and no duplicate listener registration.
-- [ ] C3. User input is never inserted as raw HTML; it is displayed as text (`textContent`).
+- [x] C1. No React, no form library, no browser storage (`localStorage`, `sessionStorage`, IndexedDB, cookies). ([report section 9](report.md#9-constraints-c1-c3-and-one-handler-per-action-r5))
+- [x] C2. No inline event attributes (`onclick=` etc.) and no duplicate listener registration. ([report section 9](report.md#9-constraints-c1-c3-and-one-handler-per-action-r5))
+- [x] C3. User input is never inserted as raw HTML; it is displayed as text (`textContent`). ([report section 9](report.md#9-constraints-c1-c3-and-one-handler-per-action-r5))
 
 ## Break it on purpose
 
-- [ ] Register the submit handler twice on a temporary branch. Observe duplicate work with a counter or log, locate the duplicate registration, repair, verify one execution per submit. Record fault, symptom, evidence, repair, verification.
+- [x] Register the submit handler twice on a temporary branch. Observe duplicate work with a counter or log, locate the duplicate registration, repair, verify one execution per submit. Record fault, symptom, evidence, repair, verification. ([report section 8](report.md#8-duplicate-handler-drill-break-it-on-purpose))
 
 ## Definition of done
 
-- [ ] All P1 input cases work in the browser.
-- [ ] Repeated submit/reset cycles remain correct.
-- [ ] Keyboard and error announcements are checked.
-- [ ] Public deployment and rendering evidence are current.
+- [x] All P1 input cases work in the browser. ([report section 3](report.md#3-all-p1-input-cases-in-the-browser-definition-of-done-1))
+- [x] Repeated submit/reset cycles remain correct. ([report section 4](report.md#4-repeated-submitreset-cycles-definition-of-done-2-r4))
+- [x] Keyboard and error announcements are checked. ([report section 5](report.md#5-keyboard-and-error-announcements-definition-of-done-3-r3))
+- [x] Public deployment and rendering evidence are current. ([report sections 1 and 2](report.md#2-deployment-and-rendering-evidence-current))
 
 ## Stretch goal (optional, does not block completion)
 
