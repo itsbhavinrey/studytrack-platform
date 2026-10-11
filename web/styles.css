@@ -461,3 +461,60 @@ button:focus-visible {
 a:hover {
   text-decoration-thickness: 0.15em;
 }
+
+/* ==========================================================================
+   7. Shared study log (Project 6, log.html)
+   Reuses the planner's form, field, error and status styles; adds the
+   pending state of the save button and the list of sessions.
+   ========================================================================== */
+
+/* Minutes is short; the note gets the rest of the row. */
+.goal-form .field-narrow {
+  flex: 0 1 12rem;
+}
+
+.goal-form .field-wide {
+  flex: 3 1 18rem;
+}
+
+.log-toolbar button {
+  font: inherit;
+  font-weight: 600;
+  color: var(--color-header);
+  background: var(--color-surface);
+  border: 2px solid var(--color-header);
+  border-radius: var(--radius);
+  padding: var(--space-2) var(--space-3);
+  cursor: pointer;
+}
+
+/* A disabled button (save pending, list loading) looks unavailable: dashed
+   border and default cursor, so the state is not shown by colour alone. */
+.goal-form button:disabled,
+.log-toolbar button:disabled {
+  border-style: dashed;
+  cursor: progress;
+  opacity: 0.75;
+}
+
+.session-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.session-meta,
+.session-note {
+  margin: 0;
+}
+
+.session-meta {
+  color: var(--color-muted);
+}
+
+.session-meta strong {
+  color: var(--color-text);
+}

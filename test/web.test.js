@@ -124,3 +124,31 @@ test('planner.mjs registers one listener per action, once', () => {
   const wiringCalls = code.match(/^\s*wirePlanner\(/gm) || [];
   assert.strictEqual(wiringCalls.length, 1, 'wirePlanner() must be called exactly once');
 });
+
+// Project 6: the shared study log page.
+
+test('log.html loads the study log as one module script', () => {
+  const html = fs.readFileSync(path.join(WEB_DIR, 'log.html'), 'utf8');
+  const scripts = html.match(/<script\b[^>]*>/g) || [];
+  assert.deepStrictEqual(scripts, ['<script type="module" src="js/study-log.mjs">']);
+});
+
+test('study-log.mjs registers one listener per action, once', () => {
+  const code = codeOnly(fs.readFileSync(path.join(JS_DIR, 'study-log.mjs'), 'utf8'));
+  const registrations = [...code.matchAll(/(\w+)\.addEventListener\(\s*['"](\w+)['"]/g)].map((m) => `${m[1]}:${m[2]}`).sort();
+  assert.deepStrictEqual(registrations, ['form:submit', 'refreshButton:click', 'retryButton:click']);
+  assert.strictEqual((code.match(/^\s*wireStudyLog\(/gm) || []).length, 1, 'wireStudyLog() must be called exactly once');
+});
+
+test('only sessions-api.mjs calls fetch(), and every fetch has a timeout', () => {
+  for (const file of jsModules()) {
+    const code = codeOnly(fs.readFileSync(path.join(JS_DIR, file), 'utf8'));
+    const calls = (code.match(/\bfetch\(/g) || []).length;
+    if (file === 'sessions-api.mjs') {
+      assert.strictEqual(calls, 1);
+      assert.match(code, /signal:\s*AbortSignal\.timeout\(/);
+    } else {
+      assert.strictEqual(calls, 0, `js/${file} calls fetch() directly`);
+    }
+  }
+});

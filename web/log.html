@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>StudyTrack shared study log</title>
+  <link rel="stylesheet" href="styles.css">
+  <!-- Project 6. Module scripts are deferred: this runs after the HTML is parsed. -->
+  <script type="module" src="js/study-log.mjs"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <header class="site-header">
+    <p class="site-name">StudyTrack</p>
+    <nav class="site-nav" aria-label="StudyTrack pages">
+      <ul role="list">
+        <li><a href="index.html">Study profile</a></li>
+        <li><a href="#log-form-heading">Log a session</a></li>
+        <li><a href="#sessions-heading">Logged sessions</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="main">
+    <h1>Shared study log</h1>
+    <p class="intro">
+      Every session saved here goes to one log on the StudyTrack server, so
+      any browser tab open on this server sees the same sessions. The log
+      needs the local server (<code>npm start</code>); on the static GitHub
+      Pages copy of this site it can only explain that it is unavailable.
+    </p>
+    <noscript>
+      <p class="planner-noscript">The study log needs JavaScript.</p>
+    </noscript>
+
+    <section aria-labelledby="log-form-heading">
+      <h2 id="log-form-heading">Log a session</h2>
+      <!--
+        js/study-log.mjs registers one "submit" listener on this form and one
+        "click" listener on each button below. No on* attributes.
+      -->
+      <form id="session-form" class="goal-form" novalidate>
+        <div class="field field-narrow">
+          <label for="session-minutes">Minutes studied</label>
+          <input id="session-minutes" name="minutes" type="text" inputmode="numeric" autocomplete="off" aria-required="true" aria-describedby="session-minutes-hint">
+          <p id="session-minutes-hint" class="field-hint">Whole minutes, 1 to 1440.</p>
+          <p id="session-minutes-error" class="field-error"></p>
+        </div>
+        <div class="field field-wide">
+          <label for="session-note">What did you study?</label>
+          <input id="session-note" name="note" type="text" autocomplete="off" maxlength="200" aria-required="true" aria-describedby="session-note-hint">
+          <p id="session-note-hint" class="field-hint">A short note, up to 200 characters.</p>
+          <p id="session-note-error" class="field-error"></p>
+        </div>
+        <div class="form-actions">
+          <button type="submit" id="save-button">Save session</button>
+          <button type="button" id="retry-save" class="button-secondary" hidden>Try again</button>
+        </div>
+      </form>
+      <!-- Live region for save results; in the page from the start. -->
+      <div id="save-status" class="plan-status" role="status"></div>
+    </section>
+
+    <section aria-labelledby="sessions-heading">
+      <h2 id="sessions-heading">Logged sessions</h2>
+      <div class="log-toolbar">
+        <button type="button" id="refresh-sessions" class="button-secondary">Refresh list</button>
+      </div>
+      <div id="sessions-state" class="plan-status" role="status"></div>
+      <ol id="sessions-list" class="session-list" role="list" aria-labelledby="sessions-heading"></ol>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>
+      StudyTrack, Project 6: one small Node server (no framework) serves this
+      page and the session API from the same origin.
+    </p>
+    <p><a href="#main">Back to the top of the study log</a></p>
+  </footer>
+</body>
+</html>
