@@ -14,7 +14,8 @@
     "test:web": "node --test test/web.test.js",
     "check:site": "node scripts/check-site.mjs",
     "serve": "node scripts/serve.mjs",
-    "test:browser": "node scripts/check-planner.mjs > /dev/null"
+    "test:browser": "node scripts/check-planner.mjs > /dev/null",
+    "record:planner": "node scripts/record-planner.mjs --out docs/projects/p05/perf"
   },
   "keywords": [
     "studytrack",
