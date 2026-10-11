@@ -7,7 +7,9 @@
     "test": "node --test test/*.test.js && node test/acceptance.js",
     "test:unit": "node --test test/calculation.test.js test/storage.test.js",
     "test:integration": "node --test test/p2.test.js",
-    "test:acceptance": "node test/acceptance.js"
+    "test:acceptance": "node test/acceptance.js",
+    "test:web": "node --test test/web.test.js",
+    "check:site": "node scripts/check-site.mjs"
   },
   "keywords": [
     "studytrack",

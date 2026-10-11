@@ -34,6 +34,8 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-24.04
+    outputs:
+      commit: ${{ steps.site.outputs.commit }}
     steps:
       - name: Check out the commit to publish
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -49,6 +51,7 @@ jobs:
         run: npm test
 
       - name: Assemble the site from web/
+        id: site
         env:
           REQUESTED_REF: ${{ inputs.ref }}
         run: |
@@ -59,6 +62,7 @@ jobs:
             echo "ref: ${REQUESTED_REF:-$GITHUB_REF}"
             echo "run: $GITHUB_RUN_ID"
           } > _site/version.txt
+          echo "commit=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
           cat _site/version.txt
           ls -la _site
 
@@ -73,6 +77,8 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-24.04
+    outputs:
+      page_url: ${{ steps.deployment.outputs.page_url }}
     permissions:
       pages: write
       id-token: write
@@ -83,3 +89,43 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
+
+  # A successful upload is not proof the public site works. Ask the public
+  # site itself which commit it serves, then check the document, the
+  # stylesheet and the 404 page over HTTPS.
+  verify:
+    needs: [build, deploy]
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check the public site
+        env:
+          SITE: ${{ needs.deploy.outputs.page_url }}
+          EXPECTED: ${{ needs.build.outputs.commit }}
+        run: |
+          set -u
+          echo "Site: $SITE  expected commit: $EXPECTED"
+          for attempt in $(seq 1 30); do
+            served=$(curl -fsS "${SITE}version.txt?check=$attempt" | sed -n 's/^commit: //p' || true)
+            [ "$served" = "$EXPECTED" ] && break
+            echo "attempt $attempt: site serves '${served:-nothing}', waiting"
+            sleep 10
+          done
+          [ "$served" = "$EXPECTED" ] || { echo "::error::public site never served $EXPECTED"; exit 1; }
+
+          check() { # path expected-status expected-content-type-prefix
+            read -r status type < <(curl -sS -o /dev/null -w '%{http_code} %{content_type}\n' "${SITE}$1")
+            echo "GET ${SITE}$1 -> $status $type"
+            [ "$status" = "$2" ] && [ "${type#"$3"}" != "$type" ] || { echo "::error::$1 expected $2 $3"; exit 1; }
+          }
+          check ""                   200 text/html
+          check "styles.css"         200 text/css
+          check "no/such/page"       404 text/html
+
+          # Every local stylesheet/script/image the page references must load.
+          curl -fsS "$SITE" | grep -oE '(href|src)="[^"#:]+"' | sed -E 's/^[a-z]+="(.*)"$/\1/' | sort -u |
+          while read -r ref; do
+            case "$ref" in /*) url="$(echo "$SITE" | sed -E 's#^(https://[^/]+).*#\1#')$ref" ;; *) url="$SITE$ref" ;; esac
+            status=$(curl -sS -o /dev/null -w '%{http_code}' "$url")
+            echo "resource $ref -> $status"
+            [ "$status" = 200 ] || { echo "::error::$ref returned $status"; exit 1; }
+          done
