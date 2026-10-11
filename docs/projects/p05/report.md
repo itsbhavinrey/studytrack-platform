@@ -123,13 +123,13 @@ Each cycle: submit a valid plan, then submit an invalid weekly value (`x`), then
 
 ## 5. Keyboard and error announcements (Definition of done 3, R3)
 
-Keyboard-only pass from a fresh load (Tab, typing, Enter and Space are real key events):
+Keyboard-only pass from a fresh load (Tab, typing, Enter and Space are real key events). Tab labels are the focused element's text with whitespace collapsed (`replace(/\s+/g, ' ')`), so the inline "weekly planner" link, which wraps across source lines, reads as one phrase:
 
 ```text
 {"name": "keyboard: Tab reaches the form, Enter submits, focus goes to the invalid field, Space on Reset clears", "ok": true,
  "detail": {"tabsToGoalName": 11,
   "tabOrder": ["Skip to main content", "Goal", "Weekly availability", "Resources", "Sample weekly plan", "Weekly planner",
-               "weekly\n          planner", "MDN reference: HTML elements", "MDN guide: basic concepts of flexbox",
+               "weekly planner", "MDN reference: HTML elements", "MDN guide: basic concepts of flexbox",
                "W3C: Understanding WCAG contrast (minimum)", "goal-name"],
   "afterEnter": "Plan for \"Keyboard goal\": 30 hours at 12 hours per week takes 3 weeks, with 6 hours in the final week.",
   "invalidFocus": "total-hours",

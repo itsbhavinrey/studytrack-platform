@@ -109,7 +109,7 @@ function browser(page) {
           resultHidden: result.hidden,
           resultRows: [...result.querySelectorAll('tbody tr')].map((tr) => [...tr.cells].map((c) => c.textContent).join(' ')),
           resultElements: result.querySelectorAll('*').length,
-          active: document.activeElement.id || document.activeElement.tagName.toLowerCase() + ':' + document.activeElement.textContent.trim(),
+          active: document.activeElement.id || document.activeElement.tagName.toLowerCase() + ':' + document.activeElement.textContent.replace(/\s+/g, ' ').trim(),
           fields: { 'goal-name': field('goal-name'), 'total-hours': field('total-hours'), 'weekly-hours': field('weekly-hours') },
         };
       })()`);
@@ -312,7 +312,7 @@ try {
   const order = [];
   for (let i = 0; i < 30 && !order.includes('goal-name'); i++) {
     await b.key('Tab');
-    order.push(await b.eval("document.activeElement.id || document.activeElement.textContent.trim()"));
+    order.push(await b.eval("document.activeElement.id || document.activeElement.textContent.replace(/\\s+/g, ' ').trim()"));
   }
   await b.typeHere('Keyboard goal');
   await b.key('Tab');
@@ -332,7 +332,7 @@ try {
   const route = [];
   for (let i = 0; i < 3; i++) {
     await b.key('Tab');
-    route.push(await b.eval("document.activeElement.id || document.activeElement.textContent.trim()"));
+    route.push(await b.eval("document.activeElement.id || document.activeElement.textContent.replace(/\\s+/g, ' ').trim()"));
   }
   await b.key('Space');
   await b.settle();
