@@ -4,7 +4,7 @@
 
 A terminal application for planning study goals, logging study sessions, and tracking progress over time.
 
-StudyTrack began as a stateless study-time calculator (**Project 1**) and has been extended into a persistent study log that survives process restarts (**Project 2**). **Project 3** adds a second runnable artifact: a static, accessible public study profile page in `web/` (HTML and CSS only, no JavaScript). **Project 4** publishes that page on the internet with GitHub Pages: https://itsbhavinrey.github.io/studytrack-platform/ . **Project 5** turns the page's goal form into an interactive weekly planner that runs the Project 1 calculation in the browser: https://itsbhavinrey.github.io/studytrack-platform/#planner
+StudyTrack began as a stateless study-time calculator (**Project 1**) and has been extended into a persistent study log that survives process restarts (**Project 2**). **Project 3** adds a second runnable artifact: a static, accessible public study profile page in `web/` (HTML and CSS only, no JavaScript). **Project 4** publishes that page on the internet with GitHub Pages: https://itsbhavinrey.github.io/studytrack-platform/ . **Project 5** turns the page's goal form into an interactive weekly planner that runs the Project 1 calculation in the browser: https://itsbhavinrey.github.io/studytrack-platform/#planner . **Project 6** adds a small Node server (`npm start`, no framework) that serves the pages and a JSON API from one origin, so several browser tabs can add study sessions to one shared, persistent log.
 
 ---
 
@@ -14,6 +14,7 @@ StudyTrack began as a stateless study-time calculator (**Project 1**) and has be
 - **Project 2**: Build modular JavaScript/Node applications, design JSON data models, implement file persistence, handle absent and corrupted data safely, and write thorough unit and integration test suites.
 - **Project 3**: Learn the browser document model with semantic HTML (landmarks, headings, lists, labels), the CSS cascade and box model, one responsive layout technique (flexbox), and keyboard and contrast accessibility checks.
 - **Project 4**: Trace a real browser request (DNS, HTTPS, HTTP status and content type), publish a static artifact, use a branch + pull request + merge workflow, and practise rollback.
+- **Project 6**: Build an HTTP server with only `node:http`, design a REST resource with a written request/response contract and consistent JSON errors, use promises and `async`/`await` without blocking the event loop, and make concurrent writes and network failures safe and visible.
 - **Project 5**: Handle DOM events without a framework (one listener per action, `preventDefault`, closures holding handler state), update the page safely with `textContent`, make errors and results accessible, reuse the P1 module in the browser, and see reflow versus repaint in a performance trace.
 
 ### Learning Topics
@@ -28,6 +29,8 @@ StudyTrack began as a stateless study-time calculator (**Project 1**) and has be
 - **Common > VCS and hosting > GitHub** (Project 4): Remote branches, a pull request, and the merge workflow.
 - **Frontend > JS / TS / Node** (Project 5): DOM events and updates; closures and event-handler state; ES modules shared by Node and the browser.
 - **Frontend > How browsers work** (Project 5): The rendering path, and reflow versus repaint.
+- **Frontend > JS / TS / Node** (Project 6): The native Node HTTP server runtime; promises, `async`/`await`, concurrency and an initial event-loop model.
+- **Backend > APIs** (Project 6): REST resources and request/response contracts.
 
 ---
 
@@ -36,9 +39,10 @@ StudyTrack began as a stateless study-time calculator (**Project 1**) and has be
 - **Node.js**: `v22.12.0` or higher (built and verified with `v24.14.0`). Since Project 5 the CLI loads the shared ES module `web/js/calculation.mjs` with `require()`, which Node supports from 22.12.
 - **Git**: `v2.0.0` or higher (built and verified with `2.50.1`).
 - Operating system: macOS, Linux, or Windows.
-- **Zero third-party dependencies**: Uses only Node.js standard libraries (`node:fs`, `node:path`, `node:os`, `node:child_process`, `node:test`, `node:assert`).
+- **Zero third-party dependencies**: Uses only Node.js standard libraries (`node:fs`, `node:path`, `node:os`, `node:child_process`, `node:http`, `node:crypto`, `node:test`, `node:assert`).
 - **Optional, Project 4 checks**: `npm run check:site` needs Node.js `v22` or higher (global `fetch` and `WebSocket`) and Google Chrome (set `CHROME_PATH` if it is not at the default macOS location). The DNS/HTTP/HTTPS evidence commands use `dig`, `curl` and `openssl`. None of these are needed for the CLI or `npm test`.
 - **Optional, Project 5 checks**: `npm run test:browser` and `npm run record:planner` need the same Node.js and Google Chrome. `npm run serve` needs only Node.js.
+- **Project 6 server**: `npm start` needs only Node.js (no `npm install`; there are no packages). `npm run test:browser:log` also needs Google Chrome.
 
 Check your installed versions:
 
@@ -60,17 +64,27 @@ studytrack-platform/
 ├── README.md               # Documentation, usage guide, and verification notes
 ├── .github/workflows/
 │   └── pages.yml           # Project 4: test, publish web/ to GitHub Pages, verify the public site
-├── web/                    # The study profile and planner; the published site root
+├── server/                 # Project 6: the app server (node:http only, ES modules)
+│   ├── main.mjs            # npm start: flags, startup, graceful stop on Ctrl+C / SIGTERM
+│   ├── app.mjs             # One origin: /health, /api/..., static web/ files; one error catch-all
+│   ├── api.mjs             # The session resource: GET/POST /api/sessions, GET /api/sessions/{id}
+│   ├── http-json.mjs       # Body reading (415/413/400), JSON responses, the JSON error format
+│   └── static.mjs          # web/ files under /studytrack-platform/ (shared with scripts/serve.mjs)
+├── web/                    # The study profile, planner and study log; the published site root
 │   ├── index.html          # Semantic page structure: landmarks, headings, lists, table, planner form
+│   ├── log.html            # Project 6: the shared study log page (needs the server)
 │   ├── styles.css          # Hand-written CSS: cascade, flexbox layout, focus, error and result states
 │   ├── 404.html            # Project 4: page GitHub Pages serves for missing paths
 │   └── js/
 │       ├── calculation.mjs # Project 5: the shared pure P1/P2 module (ES module, Node + browser)
-│       └── planner.mjs     # Project 5: form events, validation display, result rendering
+│       ├── planner.mjs     # Project 5: form events, validation display, result rendering
+│       ├── sessions-api.mjs # Project 6: the browser API client (the only fetch caller)
+│       └── study-log.mjs   # Project 6: study log states, double-submit guard, retry
 ├── scripts/
 │   ├── serve.mjs           # Project 5: local static server for web/ at /studytrack-platform/
 │   ├── check-site.mjs      # Project 4: headless-Chrome network + viewport check of a URL
 │   ├── check-planner.mjs   # Project 5: headless-Chrome checks of the planner (P1 cases, cycles, keyboard, a11y)
+│   ├── check-study-log.mjs # Project 6: two tabs, double submit, overlap, restart, outage in headless Chrome
 │   ├── record-planner.mjs  # Project 5: performance trace + WebM recording of the planner
 │   └── lib/cdp.mjs         # Minimal Chrome DevTools Protocol client shared by the scripts
 ├── docs/
@@ -81,10 +95,11 @@ studytrack-platform/
 │       │   ├── learning.md # Concept notes, code walkthrough, self-quiz
 │       │   └── screenshots/ # 360px/1280px pages, focus states, break before/after
 │       ├── p04/            # Project 4 prd, report (DNS/HTTP/rollback evidence), learning notes, screenshots
-│       └── p05/            # Project 5 prd, report, learning notes, screenshots, perf/ (trace + recording)
+│       ├── p05/            # Project 5 prd, report, learning notes, screenshots, perf/ (trace + recording)
+│       └── p06/            # Project 6 prd, report, learning notes, screenshots, evidence/ (captured outputs)
 ├── src/
 │   ├── calculation.js      # CommonJS bridge: re-exports web/js/calculation.mjs for Node
-│   ├── storage.js          # File persistence, load/save, and corrupt data protection
+│   ├── storage.js          # File persistence (sync API for the CLI, promise API + single-writer store for the server)
 │   └── cli.js              # Command dispatch, argument parsing, and console output
 └── test/
     ├── acceptance.js       # Project 1 acceptance test runner (13 test cases)
@@ -93,15 +108,20 @@ studytrack-platform/
     ├── p2.test.js          # Integration tests for multi-run persistence and commands
     ├── shared-module.test.js # Project 5: Node and browser get the same environment-neutral module
     ├── plan-input.test.js  # Project 5: planner form validation with every P1 case
-    └── web.test.js         # Projects 4-5: resource links, module imports, no inline handlers/innerHTML/storage
+    ├── web.test.js         # Projects 4-6: resource links, module imports, no inline handlers/innerHTML/storage
+    ├── session-input.test.js # Project 6: validateSessionInput() rules and limits
+    ├── session-store.test.js # Project 6: promise storage, atomic write, overlap rejection, idempotent add
+    ├── api.test.js         # Project 6: every endpoint and error against a real server
+    └── server-constraints.test.js # Project 6: no framework imports, no *Sync calls in the server
 ```
 
 ### Module Separation (Requirement 3)
 
 1. **`web/js/calculation.mjs`** (loaded in Node through the one-line bridge `src/calculation.js`): Contains pure, deterministic functions with no side effects and no file/terminal I/O. Handles week estimations, accumulated minute totals, hours conversions, rounding, and input validation. Since Project 5 it is an ES module inside `web/` so the browser can load the very same file; it must not use Node-only or browser-only APIs.
-2. **`src/storage.js`**: Manages file read/write operations using Node's `fs` module. Encapsulates single-writer persistence, generates sequential IDs, handles missing files gracefully, and detects corrupted JSON without overwriting it.
+2. **`src/storage.js`**: Manages file read/write operations using Node's `fs` module. Encapsulates single-writer persistence, generates sequential IDs, handles missing files gracefully, and detects corrupted JSON without overwriting it. Since Project 6 it has two APIs over one file format: synchronous functions for the CLI, and promise-based functions plus `createSessionStore()` (atomic writes, one write at a time, idempotent add) for the server.
 3. **`src/cli.js`**: Parses flags and arguments, coordinates calculations and storage, formats human-readable terminal output, and sets proper process exit codes.
 4. **`planner.js`**: The main executable script that passes `process.argv` to `src/cli.js`.
+5. **`server/`** (Project 6): HTTP only. It knows requests, statuses and JSON; it reaches the file only through the store from `src/storage.js`, and validates with `validateSessionInput()` from the shared module.
 
 ---
 
@@ -286,6 +306,61 @@ A server is needed because browsers refuse to load module scripts from `file://`
 - `web/js/planner.mjs` calls `wirePlanner(form)` once, which registers exactly one `submit` and one `reset` listener. Each submit logs `[planner] submit handled by handler #1 (run N)` to the console, so a duplicate registration is visible.
 - All text, including the goal name, is written with `textContent`; no `innerHTML`, no inline `on*` attributes, no browser storage, no framework or packages.
 
+### 9. Shared Study Log Server (Project 6)
+
+Two (or more) browser tabs add study sessions to one log kept by a small Node server.
+
+```bash
+npm start
+# StudyTrack server listening on http://127.0.0.1:3000
+# Study log: http://127.0.0.1:3000/studytrack-platform/log.html
+# Data file: <working directory>/studytrack-data.json
+```
+
+Open the study log URL in two tabs. Save a session in one; press **Refresh list** (or reload) in the other and it appears. Stop the server with Ctrl+C and start it again: the sessions are still there. Options: `npm start -- --port 3100`, `--host`, `--data <file>` (default: `STUDYTRACK_DATA_FILE`, else `studytrack-data.json`, the same file the CLI uses), `--write-delay-ms <n>` (pauses every write, only for demonstrating overlapping writes).
+
+One process is the only writer of the data file while it runs. Reading it with `node planner.js summary` or `log` is fine; do not run `node planner.js add` on the same file at the same time (the overlap guard works inside one process only).
+
+The pages are served under `/studytrack-platform/` (the GitHub Pages path), and `/` redirects to the study log. GitHub Pages also publishes `log.html`, but Pages has no API, so there the page only explains that the log needs the local server. Remote deployment of the server is planned for Project 22.
+
+**API contract**
+
+| Request | Success | Errors (always JSON) |
+| --- | --- | --- |
+| `GET /health` | `200 {"status":"ok","storage":"ok","sessions":N,"uptimeSeconds":S}` | `503 {"status":"error","storage":"corrupt"}` (or `"unreadable"`) |
+| `GET /api/sessions` | `200 {"sessions":[{"id","minutes","note","timestamp"}...],"count":N,"totalMinutes":M}` | `500 storage_corrupt` |
+| `POST /api/sessions` | `201 {"session":{...}}` with `Location: /api/sessions/{id}` | see below |
+| `GET /api/sessions/{id}` | `200 {"session":{...}}` | `404 not_found` |
+
+`POST /api/sessions` rules:
+
+- Header `Content-Type: application/json`, otherwise `415 unsupported_media_type`.
+- Body at most 4096 bytes, otherwise `413 body_too_large` (checked from `Content-Length` and by counting a chunked body).
+- Body is UTF-8 JSON, otherwise `400 invalid_json`; a JSON object, otherwise `400 invalid_body`.
+- Exactly the fields `minutes` (a JSON integer, 1 to 1440) and `note` (a string, 1 to 200 characters after trimming); anything else is `422 validation_failed` with a message per field in `details`.
+- Optional header `Idempotency-Key` (8-100 letters, digits, `-`, `_`): repeating a request with a key that was already stored returns that record with `200` and `Idempotent-Replayed: true` instead of creating a duplicate.
+- If another write is in progress: `409 write_conflict`, `Retry-After: 1`, `"retryable": true`. Nothing was stored; send the same request again.
+- The response is sent only after the record is on disk (temporary file, `fsync`, atomic `rename`).
+
+Every error body has the same shape:
+
+```json
+{ "error": { "code": "write_conflict", "message": "Another write is in progress. Retry the same request shortly.", "retryable": true } }
+```
+
+Other methods get `405 method_not_allowed` with an `Allow` header; unknown `/api/...` paths get `404 not_found`.
+
+**Try it with curl** (server running):
+
+```bash
+curl -i http://127.0.0.1:3000/health
+curl -i -X POST http://127.0.0.1:3000/api/sessions -H 'Content-Type: application/json' -d '{"minutes":45,"note":"Node http module"}'
+curl -i http://127.0.0.1:3000/api/sessions
+curl -i -X POST http://127.0.0.1:3000/api/sessions -H 'Content-Type: application/json' -d '{"minutes":45,'   # 400 invalid_json
+```
+
+**What the page does**: it shows loading, empty, success and failure states; disables **Save session** while a save is pending (and ignores any extra submit); keeps your entry and offers **Try again** if the server cannot be reached or does not answer within 8 seconds; retries a `409` automatically after `Retry-After`; and sends one idempotency key per entry, so trying again never adds a duplicate.
+
 ---
 
 ## Data Storage & Persistence
@@ -324,6 +399,9 @@ Sessions are stored as a JSON array of objects:
 - `minutes`: Integer duration in minutes.
 - `note`: Cleaned, trimmed descriptive text.
 - `timestamp`: ISO 8601 UTC timestamp recorded at time of creation.
+- `requestId` (Project 6, optional): the `Idempotency-Key` of the HTTP request that created the record. The CLI ignores it and the API does not return it.
+
+The CLI and the Project 6 server read and write the same format, so `node planner.js summary 30 12` reports sessions saved through the browser.
 
 ---
 
@@ -394,6 +472,13 @@ node scripts/check-planner.mjs https://itsbhavinrey.github.io/studytrack-platfor
 
 # Project 5 performance trace + recording (writes docs/projects/p05/perf/):
 npm run record:planner
+
+# Project 6 server, storage and API tests (included in npm test):
+npm run test:api
+
+# Project 6 browser checks: starts the server itself, two Chrome tabs, outage drill:
+npm run test:browser:log
+node scripts/check-study-log.mjs --screenshots /tmp/log-shots   # JSON report + screenshots
 ```
 
 `npm test` does not need a browser. `test:browser` and `record:planner` need Google Chrome (see Prerequisites); `check-planner.mjs` prints a JSON report on stdout, a PASS/FAIL line per check on stderr, and exits 1 on any failure.
@@ -476,6 +561,23 @@ Full evidence is in [`docs/projects/p05/report.md`](docs/projects/p05/report.md)
 - **Symptom**: the page looked correct; one click logged `handler #1 (run 1)` and `handler #2 (run 1)`.
 - **Evidence**: `DOMDebugger.getEventListeners` listed two `submit` listeners from the same source line; `check-planner.mjs` failed 14 checks and `npm test` failed `planner.mjs registers one listener per action, once`.
 - **Repair**: reverted the extra call; one log line per submit, all checks green; branch deleted unpushed.
+
+## Project 6 Checks (shared study log)
+
+Full evidence is in [`docs/projects/p06/report.md`](docs/projects/p06/report.md); concept notes, a file walkthrough and a self-quiz are in [`docs/projects/p06/learning.md`](docs/projects/p06/learning.md).
+
+- **Contracts**: `test/api.test.js` checks all three endpoints (and `GET /api/sessions/{id}`) against a real server: 200/201/400/404/405/409/413/415/422/500/503, the JSON error shape, `Location`, `Allow`, `Retry-After`. curl examples for success, malformed input and overlap are in the report, section 3.
+- **Two tabs and restart**: `npm run test:browser:log` (21 checks): tab B sees tab A's record after reload or Refresh, both tabs list identical records, and all records are still listed after the server process is stopped and started again.
+- **Double submission**: while a save is pending the button is disabled and further submits are ignored; double click + Enter stores one record.
+- **Overlap**: two saves at once give one `201` and one `409`; the client retries after `Retry-After` and both are stored. With the guard removed (extra drill), five concurrent POSTs all got `201` but only one record survived.
+
+### Exercise 7: Server Stopped While the Page Is Open (Project 6)
+
+- **Fault**: on a temporary branch the save handler had no `try/catch` (happy path only).
+- **Symptom**: with the server stopped (SIGINT), Save showed "Saving..." with a disabled button for good - still at 12 s, and still after the server was restarted. Chrome logged `POST /api/sessions failed: net::ERR_CONNECTION_REFUSED` and an uncaught `NetworkError`.
+- **Evidence**: `fetch()` rejected (no HTTP response), the rejection escaped the handler, and the line that re-enables the button never ran.
+- **Repair**: back on `main`: the handler catches the error, shows "Not saved: The StudyTrack server could not be reached. ... press Try again; it will not create a duplicate.", re-enables the button, keeps the entry; every fetch also has an 8-second timeout.
+- **Verification**: same drill on `main`: message within 1 s, server restarted, **Try again** sent the same idempotency key and stored exactly one record. A lost response (stored, but never delivered) is also covered: Try again answers "Already saved", no duplicate. Branch deleted unpushed.
 
 ---
 
@@ -566,7 +668,18 @@ node planner.js --file ./fresh-demo.json log
 # 6. Optional (needs Google Chrome): Project 5 planner checks in a headless browser
 npm run test:browser
 
-# 7. Cleanup verification clone
+# 7. Project 6 server: start it, check health and the API, stop it with Ctrl+C
+npm start -- --data ./fresh-demo.json
+#   in a second terminal:
+curl -i http://127.0.0.1:3000/health
+curl -i -X POST http://127.0.0.1:3000/api/sessions -H 'Content-Type: application/json' -d '{"minutes":30,"note":"Fresh clone API session"}'
+curl -i http://127.0.0.1:3000/api/sessions
+#   open http://127.0.0.1:3000/studytrack-platform/log.html in two tabs
+
+# 8. Optional (needs Google Chrome): Project 6 two-tab, restart and outage checks
+npm run test:browser:log
+
+# 9. Cleanup verification clone
 rm -rf /tmp/studytrack-fresh-verify
 ```
 
@@ -602,3 +715,10 @@ rm -rf /tmp/studytrack-fresh-verify
 - [x] Repeated submit/reset cycles remain correct (five cycles, report section 4).
 - [x] Keyboard and error announcements are checked (keyboard pass and accessibility tree, report section 5; no screen reader run).
 - [x] Public deployment and rendering evidence are current (deployed commit in `version.txt`, network events and screenshots at 360/1280, report section 2).
+
+### Project 6 Definition of Done
+
+- [x] All three endpoints follow their documented contracts (`test/api.test.js`, 20 tests; curl examples in `docs/projects/p06/report.md` section 3).
+- [x] Two-tab and restart checks pass (`npm run test:browser:log`, 21/21; report section 4).
+- [x] Invalid JSON and overlapping writes have defined outcomes (`400 invalid_json`; `409 write_conflict` + `Retry-After`, nothing lost; report section 3).
+- [x] Server-down recovery works and prior calculation tests remain green (Exercise 7; `npm test` 136/136 and 13/13 P1 acceptance cases).
