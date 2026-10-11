@@ -11,10 +11,10 @@ All outputs below were captured on 2026-10-11 on macOS with Node v24.14.0 and Go
 | Shared calculation module | [`web/js/calculation.mjs`](../../../web/js/calculation.mjs), served at `/studytrack-platform/js/calculation.mjs` |
 | Node bridge to it | [`src/calculation.js`](../../../src/calculation.js) (`module.exports = require('../web/js/calculation.mjs')`) |
 | Browser script | [`web/js/planner.mjs`](../../../web/js/planner.mjs), served at `/studytrack-platform/js/planner.mjs` |
-| Pull request | [#4 "Interactive weekly planner (Project 5)"](https://github.com/itsbhavinrey/studytrack-platform/pull/4), branch `p05/interactive-planner` into `main`, merge commit `49e0d307ff589d8e698cb6e20d9ad7309247b31b` |
+| Pull request | [#4 "Interactive weekly planner (Project 5)"](https://github.com/itsbhavinrey/studytrack-platform/pull/4), branch `p05/interactive-planner` into `main` (branch deleted from origin after merge), merge commit `49e0d307ff589d8e698cb6e20d9ad7309247b31b` |
 | Deployed commit | `49e0d307ff589d8e698cb6e20d9ad7309247b31b` (the PR #4 merge). `web/` is identical to `bb57d56` (`git diff --stat bb57d56 49e0d30 -- web/` is empty), the commit the evidence in sections 2-7 was captured from |
 | Deployment | Push-triggered Actions run [38148777649](https://github.com/itsbhavinrey/studytrack-platform/actions/runs/38148777649) on `main`. Jobs: build success, deploy success, verify success. `version.txt` then read `commit: 49e0d307ff589d8e698cb6e20d9ad7309247b31b`, `ref: refs/heads/main`, `run: 38148777649`; `check-site.mjs` returned `"ok": true` and `check-planner.mjs` 23/23 against the public site |
-| Earlier preview deployment | Actions run [38147886189](https://github.com/itsbhavinrey/studytrack-platform/actions/runs/38147886189), `workflow_dispatch` with `ref=bb57d56...` from branch `p05/interactive-planner` (the P4 "publish a specific commit" path), used before the merge |
+| Earlier preview deployment | Actions run [38147886189](https://github.com/itsbhavinrey/studytrack-platform/actions/runs/38147886189), `workflow_dispatch` on `main` (head `8be6250`) with input `ref=bb57d56...` (the P4 "publish a specific commit" path), used before the merge |
 
 The P4 workflow was not changed. It publishes `web/`, and the shared module is inside `web/`, so it ships with no build step. Merging PR #4 pushed `main`, and the push trigger redeployed the same `web/` content.
 
@@ -29,9 +29,9 @@ $ npm test
 
 The first test compares `require('../src/calculation')` with `await import('web/js/calculation.mjs')` and checks each export is the *same function object* (`===`), so the Node CLI and the browser run the same code. The second scans the code (comments stripped) for `require(`, `module.exports`, `import`, `process`, `__dirname`, `Buffer`, `window`/`document`/storage, and `console.`.
 
-## 2. Deployment and rendering evidence (current)
+## 2. Deployment and rendering evidence
 
-Verify job log of run 38147886189 (the workflow checks the public site itself):
+Preview deploy (`web/` identical to `main`). Verify job log of run 38147886189 (the workflow checks the public site itself):
 
 ```text
 Site: https://itsbhavinrey.github.io/studytrack-platform/  expected commit: bb57d5698a64468f3de982b26b737c52be18c485
@@ -49,6 +49,20 @@ $ curl -s ${S}version.txt
 commit: bb57d5698a64468f3de982b26b737c52be18c485
 ref: bb57d5698a64468f3de982b26b737c52be18c485
 run: 38147886189
+$ for p in "" styles.css js/planner.mjs js/calculation.mjs; do curl -sS -o /dev/null -w "GET /studytrack-platform/$p -> %{http_code} %{content_type} %{http_version}\n" "$S$p"; done
+GET /studytrack-platform/ -> 200 text/html; charset=utf-8 2
+GET /studytrack-platform/styles.css -> 200 text/css; charset=utf-8 2
+GET /studytrack-platform/js/planner.mjs -> 200 text/javascript; charset=utf-8 2
+GET /studytrack-platform/js/calculation.mjs -> 200 text/javascript; charset=utf-8 2
+```
+
+Current main deployment (PR #4 merge `49e0d30`, run 38148777649), read after the merge:
+
+```text
+$ curl -s ${S}version.txt
+commit: 49e0d307ff589d8e698cb6e20d9ad7309247b31b
+ref: refs/heads/main
+run: 38148777649
 $ for p in "" styles.css js/planner.mjs js/calculation.mjs; do curl -sS -o /dev/null -w "GET /studytrack-platform/$p -> %{http_code} %{content_type} %{http_version}\n" "$S$p"; done
 GET /studytrack-platform/ -> 200 text/html; charset=utf-8 2
 GET /studytrack-platform/styles.css -> 200 text/css; charset=utf-8 2
