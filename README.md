@@ -422,6 +422,8 @@ Full details, numbers, and screenshots are in [`docs/projects/p03/report.md`](do
   13. Plan my weeks (button)
   14. Back to the top of the profile (footer link)
 
+  This is the Project 3 route. Project 5 renamed the nav link "Goal form preview" to "Weekly planner" and added an inline "weekly planner" link and a Reset button, so the route now has 16 stops (11 Tabs to the goal-name field); the current order is in [`docs/projects/p05/report.md` section 5](docs/projects/p05/report.md#5-keyboard-and-error-announcements-definition-of-done-3-r3).
+
   Each one shows a 3px focus outline: orange `#c2410c` on light areas, yellow `#ffbf47` in the navy header and footer. Every input has a visible label, and its accessible name matches that label.
 - **Contrast**: all text pairs are 6.21:1 or higher (WCAG AA needs 4.5:1). Focus rings are 4.83:1 or higher against their background (needs 3:1).
 - **Still recommended**: a manual keyboard pass by the owner (Tab, Shift+Tab, Enter, Space) in Chrome and in Safari with "Press Tab to highlight each item" enabled, plus a quick VoiceOver pass. The automated route pressed real Tab keys in headless Chrome, but no human has used the page yet.
