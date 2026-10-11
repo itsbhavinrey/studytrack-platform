@@ -71,3 +71,56 @@ test('404.html uses root-relative URLs (it is served at arbitrary paths)', () =>
     assert.ok(url.startsWith(SITE_PATH), `404.html: "${url}" must start with ${SITE_PATH}`);
   }
 });
+
+// Project 5: the browser modules in web/js/.
+
+const JS_DIR = path.join(WEB_DIR, 'js');
+
+function jsModules() {
+  return fs.readdirSync(JS_DIR).filter((f) => f.endsWith('.mjs'));
+}
+
+// Comments explain forbidden APIs by name; check code only.
+function codeOnly(source) {
+  return source.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:])\/\/.*$/gm, '$1');
+}
+
+test('index.html loads the planner as one module script', () => {
+  const html = fs.readFileSync(path.join(WEB_DIR, 'index.html'), 'utf8');
+  const scripts = html.match(/<script\b[^>]*>/g) || [];
+  assert.deepStrictEqual(scripts, ['<script type="module" src="js/planner.mjs">']);
+});
+
+for (const page of htmlFiles()) {
+  test(`${page}: no inline event-handler attributes`, () => {
+    const html = fs.readFileSync(path.join(WEB_DIR, page), 'utf8');
+    assert.doesNotMatch(html, /<[^>]+\son[a-z]+\s*=/i);
+  });
+}
+
+for (const file of jsModules()) {
+  test(`js/${file}: every relative import resolves to a file in web/js/`, () => {
+    const code = codeOnly(fs.readFileSync(path.join(JS_DIR, file), 'utf8'));
+    const specifiers = [...code.matchAll(/\bfrom\s+['"]([^'"]+)['"]/g)].map((m) => m[1]);
+    for (const spec of specifiers) {
+      // Browsers need a full relative URL with the extension: no bare
+      // specifiers like 'calculation' and no Node-style extension guessing.
+      assert.match(spec, /^\.\.?\/.+\.mjs$/, `js/${file}: import "${spec}" is not a relative .mjs URL`);
+      assert.ok(fs.existsSync(path.join(JS_DIR, spec)), `js/${file}: import "${spec}" does not exist`);
+    }
+  });
+
+  test(`js/${file}: no HTML insertion and no browser storage`, () => {
+    const code = codeOnly(fs.readFileSync(path.join(JS_DIR, file), 'utf8'));
+    assert.doesNotMatch(code, /\.(?:innerHTML|outerHTML)\b|insertAdjacentHTML|document\.write/);
+    assert.doesNotMatch(code, /\b(?:localStorage|sessionStorage|indexedDB)\b|document\.cookie/);
+  });
+}
+
+test('planner.mjs registers one listener per action, once', () => {
+  const code = codeOnly(fs.readFileSync(path.join(JS_DIR, 'planner.mjs'), 'utf8'));
+  const registrations = [...code.matchAll(/addEventListener\(\s*['"](\w+)['"]/g)].map((m) => m[1]).sort();
+  assert.deepStrictEqual(registrations, ['reset', 'submit']);
+  const wiringCalls = code.match(/^\s*wirePlanner\(/gm) || [];
+  assert.strictEqual(wiringCalls.length, 1, 'wirePlanner() must be called exactly once');
+});
