@@ -4,7 +4,7 @@
 
 A terminal application for planning study goals, logging study sessions, and tracking progress over time.
 
-StudyTrack began as a stateless study-time calculator (**Project 1**) and has been extended into a persistent study log that survives process restarts (**Project 2**). **Project 3** adds a second runnable artifact: a static, accessible public study profile page in `web/` (HTML and CSS only, no JavaScript). **Project 4** publishes that page on the internet with GitHub Pages: https://itsbhavinrey.github.io/studytrack-platform/
+StudyTrack began as a stateless study-time calculator (**Project 1**) and has been extended into a persistent study log that survives process restarts (**Project 2**). **Project 3** adds a second runnable artifact: a static, accessible public study profile page in `web/` (HTML and CSS only, no JavaScript). **Project 4** publishes that page on the internet with GitHub Pages: https://itsbhavinrey.github.io/studytrack-platform/ . **Project 5** turns the page's goal form into an interactive weekly planner that runs the Project 1 calculation in the browser: https://itsbhavinrey.github.io/studytrack-platform/#planner
 
 ---
 
@@ -14,6 +14,7 @@ StudyTrack began as a stateless study-time calculator (**Project 1**) and has be
 - **Project 2**: Build modular JavaScript/Node applications, design JSON data models, implement file persistence, handle absent and corrupted data safely, and write thorough unit and integration test suites.
 - **Project 3**: Learn the browser document model with semantic HTML (landmarks, headings, lists, labels), the CSS cascade and box model, one responsive layout technique (flexbox), and keyboard and contrast accessibility checks.
 - **Project 4**: Trace a real browser request (DNS, HTTPS, HTTP status and content type), publish a static artifact, use a branch + pull request + merge workflow, and practise rollback.
+- **Project 5**: Handle DOM events without a framework (one listener per action, `preventDefault`, closures holding handler state), update the page safely with `textContent`, make errors and results accessible, reuse the P1 module in the browser, and see reflow versus repaint in a performance trace.
 
 ### Learning Topics
 
@@ -25,16 +26,19 @@ StudyTrack began as a stateless study-time calculator (**Project 1**) and has be
 - **Common > Fundamentals > Networking** (Project 4): HTTP/HTTPS, URLs, DNS, requests, responses and status codes.
 - **Common > Dev environment and deployment** (Project 4): Publishing a static artifact (GitHub Pages via GitHub Actions).
 - **Common > VCS and hosting > GitHub** (Project 4): Remote branches, a pull request, and the merge workflow.
+- **Frontend > JS / TS / Node** (Project 5): DOM events and updates; closures and event-handler state; ES modules shared by Node and the browser.
+- **Frontend > How browsers work** (Project 5): The rendering path, and reflow versus repaint.
 
 ---
 
 ## Prerequisites
 
-- **Node.js**: `v18.0.0` or higher (built and verified with `v24.14.0`).
+- **Node.js**: `v22.12.0` or higher (built and verified with `v24.14.0`). Since Project 5 the CLI loads the shared ES module `web/js/calculation.mjs` with `require()`, which Node supports from 22.12.
 - **Git**: `v2.0.0` or higher (built and verified with `2.50.1`).
 - Operating system: macOS, Linux, or Windows.
 - **Zero third-party dependencies**: Uses only Node.js standard libraries (`node:fs`, `node:path`, `node:os`, `node:child_process`, `node:test`, `node:assert`).
 - **Optional, Project 4 checks**: `npm run check:site` needs Node.js `v22` or higher (global `fetch` and `WebSocket`) and Google Chrome (set `CHROME_PATH` if it is not at the default macOS location). The DNS/HTTP/HTTPS evidence commands use `dig`, `curl` and `openssl`. None of these are needed for the CLI or `npm test`.
+- **Optional, Project 5 checks**: `npm run test:browser` and `npm run record:planner` need the same Node.js and Google Chrome. `npm run serve` needs only Node.js.
 
 Check your installed versions:
 
@@ -56,12 +60,19 @@ studytrack-platform/
 ├── README.md               # Documentation, usage guide, and verification notes
 ├── .github/workflows/
 │   └── pages.yml           # Project 4: test, publish web/ to GitHub Pages, verify the public site
-├── web/                    # Project 3 static study profile (no JavaScript); the published site root
-│   ├── index.html          # Semantic page structure: landmarks, headings, lists, table, form
-│   ├── styles.css          # Hand-written CSS: cascade, flexbox layout, focus styles
-│   └── 404.html            # Project 4: page GitHub Pages serves for missing paths
+├── web/                    # The study profile and planner; the published site root
+│   ├── index.html          # Semantic page structure: landmarks, headings, lists, table, planner form
+│   ├── styles.css          # Hand-written CSS: cascade, flexbox layout, focus, error and result states
+│   ├── 404.html            # Project 4: page GitHub Pages serves for missing paths
+│   └── js/
+│       ├── calculation.mjs # Project 5: the shared pure P1/P2 module (ES module, Node + browser)
+│       └── planner.mjs     # Project 5: form events, validation display, result rendering
 ├── scripts/
-│   └── check-site.mjs      # Project 4: headless-Chrome network + viewport check of a URL
+│   ├── serve.mjs           # Project 5: local static server for web/ at /studytrack-platform/
+│   ├── check-site.mjs      # Project 4: headless-Chrome network + viewport check of a URL
+│   ├── check-planner.mjs   # Project 5: headless-Chrome checks of the planner (P1 cases, cycles, keyboard, a11y)
+│   ├── record-planner.mjs  # Project 5: performance trace + WebM recording of the planner
+│   └── lib/cdp.mjs         # Minimal Chrome DevTools Protocol client shared by the scripts
 ├── docs/
 │   └── projects/
 │       ├── p03/
@@ -69,9 +80,10 @@ studytrack-platform/
 │       │   ├── report.md   # Viewport, keyboard, contrast checks and failure report
 │       │   ├── learning.md # Concept notes, code walkthrough, self-quiz
 │       │   └── screenshots/ # 360px/1280px pages, focus states, break before/after
-│       └── p04/            # Project 4 prd, report (DNS/HTTP/rollback evidence), learning notes, screenshots
+│       ├── p04/            # Project 4 prd, report (DNS/HTTP/rollback evidence), learning notes, screenshots
+│       └── p05/            # Project 5 prd, report, learning notes, screenshots, perf/ (trace + recording)
 ├── src/
-│   ├── calculation.js      # Pure calculation functions, unit conversions, validation
+│   ├── calculation.js      # CommonJS bridge: re-exports web/js/calculation.mjs for Node
 │   ├── storage.js          # File persistence, load/save, and corrupt data protection
 │   └── cli.js              # Command dispatch, argument parsing, and console output
 └── test/
@@ -79,12 +91,14 @@ studytrack-platform/
     ├── calculation.test.js # Unit tests for pure calculation and validation functions
     ├── storage.test.js     # Unit tests for file persistence and corrupt file safety
     ├── p2.test.js          # Integration tests for multi-run persistence and commands
-    └── web.test.js         # Project 4: every local href/src in web/*.html points at a real file
+    ├── shared-module.test.js # Project 5: Node and browser get the same environment-neutral module
+    ├── plan-input.test.js  # Project 5: planner form validation with every P1 case
+    └── web.test.js         # Projects 4-5: resource links, module imports, no inline handlers/innerHTML/storage
 ```
 
 ### Module Separation (Requirement 3)
 
-1. **`src/calculation.js`**: Contains pure, deterministic functions with no side effects and no file/terminal I/O. Handles week estimations, accumulated minute totals, hours conversions, rounding, and input validation.
+1. **`web/js/calculation.mjs`** (loaded in Node through the one-line bridge `src/calculation.js`): Contains pure, deterministic functions with no side effects and no file/terminal I/O. Handles week estimations, accumulated minute totals, hours conversions, rounding, and input validation. Since Project 5 it is an ES module inside `web/` so the browser can load the very same file; it must not use Node-only or browser-only APIs.
 2. **`src/storage.js`**: Manages file read/write operations using Node's `fs` module. Encapsulates single-writer persistence, generates sequential IDs, handles missing files gracefully, and detects corrupted JSON without overwriting it.
 3. **`src/cli.js`**: Parses flags and arguments, coordinates calculations and storage, formats human-readable terminal output, and sets proper process exit codes.
 4. **`planner.js`**: The main executable script that passes `process.argv` to `src/cli.js`.
@@ -199,21 +213,9 @@ node planner.js -h
 
 ### 6. Public Study Profile Page (Project 3)
 
-A static web page in `web/` showing a learner's goal, weekly availability, three resources, a sample weekly plan, and a preview goal form. It is plain HTML and CSS, so there is nothing to install, build, or serve.
-
-Open it from the repository root:
-
-```bash
-open web/index.html          # macOS
-xdg-open web/index.html      # Linux
-start web\index.html         # Windows
-```
-
-Or drag `web/index.html` into any browser window. The stylesheet is linked with a relative path, so the page works straight from disk.
+A web page in `web/` showing a learner's goal, weekly availability, three resources, a sample weekly plan, and (since Project 5) the interactive weekly planner. Since Project 5 it loads one JavaScript module, so preview it through the local server described in section 8; opening `web/index.html` from disk still shows the static content, but the planner does not work there.
 
 The sample plan matches the calculator: `node planner.js 30 12` gives 3 weeks with 6 hours in the final week, and the page shows 12 + 12 + 6 hours.
-
-The goal form is a **preview until Project 5**. Its button is `type="button"` and it has more than one field with no submit button, so neither clicking nor pressing Enter submits anything.
 
 ### 7. Published Study Profile (Project 4)
 
@@ -256,6 +258,33 @@ npm run check:site -- https://itsbhavinrey.github.io/studytrack-platform/ --scre
 `check:site` needs Google Chrome (set `CHROME_PATH` if it is not in the default macOS location). It records each request's status and Content-Type, which is the same data as the DevTools Network panel, checks for horizontal scrolling at 360px and 1280px, and exits 1 on any required-resource failure.
 
 Note that GitHub Pages responses are cacheable for 10 minutes (`cache-control: max-age=600`), so a browser may show the previous version briefly after a deploy or rollback.
+
+### 8. Interactive Weekly Planner (Project 5)
+
+Live: **https://itsbhavinrey.github.io/studytrack-platform/#planner**
+
+Run it locally (no packages):
+
+```bash
+npm run serve            # Serving web/ at http://127.0.0.1:8080/studytrack-platform/
+# open http://127.0.0.1:8080/studytrack-platform/#planner ; Ctrl+C to stop
+npm run serve -- --port 9000   # another port
+```
+
+A server is needed because browsers refuse to load module scripts from `file://` pages. `scripts/serve.mjs` serves `web/` under the same `/studytrack-platform/` path as GitHub Pages, with `text/javascript` for `.mjs` and the 404 page for unknown paths.
+
+**Using it**
+
+1. Enter a goal name, the total hours it needs and the hours available per week (whole numbers).
+2. Press **Plan my weeks** or Enter. The page does not reload. A summary sentence appears (announced by screen readers through a `role="status"` live region), with a week-by-week table for plans of up to 52 weeks. `30` / `12` gives 3 weeks: 12 + 12 + 6 hours, the same as `node planner.js 30 12`.
+3. Invalid input follows Project 1's rules (positive whole numbers only; surrounding spaces are ignored, as the shell ignores them). Each problem is shown under its own field, the field is marked `aria-invalid` and described by the message, the previous result is removed, and focus moves to the first invalid field.
+4. **Reset** empties all fields and removes errors, the status and the table, then puts focus on the goal name.
+
+**How it is built**
+
+- `web/js/calculation.mjs` holds the P1/P2 pure functions plus `validatePlanInput()` and `weeklyBreakdown()`. The browser imports it; Node `require()`s it through `src/calculation.js`.
+- `web/js/planner.mjs` calls `wirePlanner(form)` once, which registers exactly one `submit` and one `reset` listener. Each submit logs `[planner] submit handled by handler #1 (run N)` to the console, so a duplicate registration is visible.
+- All text, including the goal name, is written with `textContent`; no `innerHTML`, no inline `on*` attributes, no browser storage, no framework or packages.
 
 ---
 
@@ -352,9 +381,22 @@ node --test test/p2.test.js
 # Project 1 backward-compatibility acceptance tests:
 node test/acceptance.js
 
-# Project 4 web resource-link tests:
+# Project 4-5 web tests (resource links, module imports, P5 constraints):
 npm run test:web
+
+# Project 5 planner validation and shared-module tests:
+node --test test/plan-input.test.js test/shared-module.test.js
+
+# Project 5 browser checks in headless Chrome (serves web/ itself on a free port):
+npm run test:browser
+# the same checks against the public site, plus 360/1280 screenshots:
+node scripts/check-planner.mjs https://itsbhavinrey.github.io/studytrack-platform/ --screenshots /tmp/planner-shots
+
+# Project 5 performance trace + recording (writes docs/projects/p05/perf/):
+npm run record:planner
 ```
+
+`npm test` does not need a browser. `test:browser` and `record:planner` need Google Chrome (see Prerequisites); `check-planner.mjs` prints a JSON report on stdout, a PASS/FAIL line per check on stderr, and exits 1 on any failure.
 
 ---
 
@@ -379,6 +421,8 @@ Full details, numbers, and screenshots are in [`docs/projects/p03/report.md`](do
   12. Hours available per week (input)
   13. Plan my weeks (button)
   14. Back to the top of the profile (footer link)
+
+  This is the Project 3 route. Project 5 renamed the nav link "Goal form preview" to "Weekly planner" and added an inline "weekly planner" link and a Reset button, so the route now has 16 stops (11 Tabs to the goal-name field); the current order is in [`docs/projects/p05/report.md` section 5](docs/projects/p05/report.md#5-keyboard-and-error-announcements-definition-of-done-3-r3).
 
   Each one shows a 3px focus outline: orange `#c2410c` on light areas, yellow `#ffbf47` in the navy header and footer. Every input has a visible label, and its accessible name matches that label.
 - **Contrast**: all text pairs are 6.21:1 or higher (WCAG AA needs 4.5:1). Focus rings are 4.83:1 or higher against their background (needs 3:1).
@@ -413,6 +457,25 @@ Full evidence is in [`docs/projects/p04/report.md`](docs/projects/p04/report.md)
 - **Evidence**: Chrome network events showed `Stylesheet 404 text/html .../studytrack-platform/css/styles.css`, and `curl -sI` gave the same 404, while the document itself was 200.
 - **Repair**: restored `href="styles.css"` on the branch and redeployed. The stylesheet returned `200 text/css` again. Then redeployed `main` and deleted the branch.
 - **Prevention**: `test/web.test.js` now fails on that path, and the workflow runs the tests before uploading. Screenshots: [`drill-broken-1280.jpg`](docs/projects/p04/screenshots/drill-broken-1280.jpg) and [`drill-repaired-1280.jpg`](docs/projects/p04/screenshots/drill-repaired-1280.jpg).
+
+---
+
+## Project 5 Checks (interactive planner)
+
+Full evidence is in [`docs/projects/p05/report.md`](docs/projects/p05/report.md); concept notes, a file walkthrough and a self-quiz are in [`docs/projects/p05/learning.md`](docs/projects/p05/learning.md).
+
+- **P1 cases in the browser**: all 4 valid and 8 invalid P1 cases pass on the public site (23/23 browser checks), with one submit per click and no reload.
+- **Submit/reset cycles**: five valid-submit, invalid-submit, reset cycles leave empty fields, no errors, no result and focus on the first field.
+- **Keyboard and announcements**: Tab reaches the form, Enter submits, focus moves to the first invalid field, Space on Reset clears. Chrome's accessibility tree shows each invalid input as invalid with the error as its description, and the status region as a polite live region. No screen reader was run (headless); a VoiceOver pass is a useful manual check.
+- **Performance**: a trace of a submit shows 1 Layout (39 of 246 layout objects dirty, caused by inserting the table and filling the status box); a keyboard focus move shows 0 Layout and 2 Paint (outline only). Files: `docs/projects/p05/perf/`.
+- **Recording**: `docs/projects/p05/perf/planner-recording.webm` (12 s) shows valid, invalid and reset behaviour.
+
+### Exercise 6: Submit Handler Registered Twice (Project 5)
+
+- **Fault**: on a temporary branch, a `DOMContentLoaded` listener called `wirePlanner()` a second time. Module scripts already run after parsing, so the form got two `submit` and two `reset` listeners.
+- **Symptom**: the page looked correct; one click logged `handler #1 (run 1)` and `handler #2 (run 1)`.
+- **Evidence**: `DOMDebugger.getEventListeners` listed two `submit` listeners from the same source line; `check-planner.mjs` failed 14 checks and `npm test` failed `planner.mjs registers one listener per action, once`.
+- **Repair**: reverted the extra call; one log line per submit, all checks green; branch deleted unpushed.
 
 ---
 
@@ -500,7 +563,10 @@ node planner.js --file ./fresh-demo.json add 60 "Fresh clone session"
 node planner.js --file ./fresh-demo.json summary 10 5
 node planner.js --file ./fresh-demo.json log
 
-# 6. Cleanup verification clone
+# 6. Optional (needs Google Chrome): Project 5 planner checks in a headless browser
+npm run test:browser
+
+# 7. Cleanup verification clone
 rm -rf /tmp/studytrack-fresh-verify
 ```
 
@@ -529,3 +595,10 @@ rm -rf /tmp/studytrack-fresh-verify
 - [x] The PR and the deployed commit are identifiable (PRs #1 and #2; `version.txt` on the live site).
 - [x] DNS and HTTP evidence is recorded (`docs/projects/p04/report.md`).
 - [x] Broken-asset diagnosis and rollback are demonstrated (Exercise 5 and the report's rollback section).
+
+### Project 5 Definition of Done
+
+- [x] All P1 input cases work in the browser (12 cases, public site, `docs/projects/p05/report.md` section 3).
+- [x] Repeated submit/reset cycles remain correct (five cycles, report section 4).
+- [x] Keyboard and error announcements are checked (keyboard pass and accessibility tree, report section 5; no screen reader run).
+- [x] Public deployment and rendering evidence are current (deployed commit in `version.txt`, network events and screenshots at 360/1280, report section 2).

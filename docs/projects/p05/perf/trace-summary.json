@@ -1,0 +1,432 @@
+{
+  "url": "https://itsbhavinrey.github.io/studytrack-platform/",
+  "recordedAt": "2026-10-11T14:37:40.610Z",
+  "traceEvents": 1954,
+  "categories": [
+    "devtools.timeline",
+    "disabled-by-default-devtools.timeline",
+    "disabled-by-default-devtools.timeline.frame",
+    "disabled-by-default-devtools.timeline.stack",
+    "disabled-by-default-devtools.timeline.invalidationTracking",
+    "blink.user_timing",
+    "v8.execute",
+    "loading"
+  ],
+  "interactions": {
+    "submit": {
+      "windowMs": 109,
+      "counts": {
+        "Recalculate style": 4,
+        "Layout": 1,
+        "Pre-paint": 11,
+        "Paint": 3,
+        "Layerize": 4,
+        "Commit": 4
+      },
+      "pipeline": [
+        {
+          "event": "Pre-paint",
+          "atMs": 6.08,
+          "durationMs": 0.018
+        },
+        {
+          "event": "Pre-paint",
+          "atMs": 6.16,
+          "durationMs": 0.003
+        },
+        {
+          "event": "Recalculate style",
+          "atMs": 6.34,
+          "durationMs": 0.156,
+          "elementCount": 1
+        },
+        {
+          "event": "Pre-paint",
+          "atMs": 6.52,
+          "durationMs": 0.003
+        },
+        {
+          "event": "Recalculate style",
+          "atMs": 7.08,
+          "durationMs": 0.059,
+          "elementCount": 2
+        },
+        {
+          "event": "Pre-paint",
+          "atMs": 7.2,
+          "durationMs": 0.082
+        },
+        {
+          "event": "Pre-paint",
+          "atMs": 7.38,
+          "durationMs": 0.002
+        },
+        {
+          "event": "Paint",
+          "atMs": 7.41,
+          "durationMs": 0.194
+        },
+        {
+          "event": "Paint",
+          "atMs": 7.44,
+          "durationMs": 0.167
+        },
+        {
+          "event": "Layerize",
+          "atMs": 7.65,
+          "durationMs": 0.081
+        },
+        {
+          "event": "Commit",
+          "atMs": 7.74,
+          "durationMs": 0.151
+        },
+        {
+          "event": "Pre-paint",
+          "atMs": 8.46,
+          "durationMs": 0.004
+        },
+        {
+          "event": "Recalculate style",
+          "atMs": 8.64,
+          "durationMs": 0.026,
+          "elementCount": 1
+        },
+        {
+          "event": "Recalculate style",
+          "atMs": 10.41,
+          "durationMs": 0.233,
+          "elementCount": 22
+        },
+        {
+          "event": "Layout",
+          "atMs": 10.65,
+          "durationMs": 0.308,
+          "dirtyObjects": 39,
+          "totalObjects": 246,
+          "partialLayout": false
+        },
+        {
+          "event": "Pre-paint",
+          "atMs": 10.98,
+          "durationMs": 0.244
+        },
+        {
+          "event": "Pre-paint",
+          "atMs": 22.57,
+          "durationMs": 0.004
+        },
+        {
+          "event": "Pre-paint",
+          "atMs": 22.74,
+          "durationMs": 0.002
+        },
+        {
+          "event": "Paint",
+          "atMs": 22.78,
+          "durationMs": 0.366
+        },
+        {
+          "event": "Layerize",
+          "atMs": 23.16,
+          "durationMs": 0.082
+        },
+        {
+          "event": "Commit",
+          "atMs": 23.25,
+          "durationMs": 0.122
+        },
+        {
+          "event": "Pre-paint",
+          "atMs": 39.29,
+          "durationMs": 0.004
+        },
+        {
+          "event": "Layerize",
+          "atMs": 39.3,
+          "durationMs": 0.001
+        },
+        {
+          "event": "Commit",
+          "atMs": 39.31,
+          "durationMs": 0.054
+        },
+        {
+          "event": "Pre-paint",
+          "atMs": 55.88,
+          "durationMs": 0.003
+        },
+        {
+          "event": "Layerize",
+          "atMs": 55.89,
+          "durationMs": 0.001
+        },
+        {
+          "event": "Commit",
+          "atMs": 55.89,
+          "durationMs": 0.034
+        }
+      ],
+      "layoutInvalidations": [
+        {
+          "reason": "Style changed",
+          "node": "DIV id='plan-status' class='plan-status'",
+          "during": "Recalculate style (rendering step, after the script)",
+          "times": 1
+        },
+        {
+          "reason": "Added to layout",
+          "node": "DIV id='plan-result' class='plan-result'",
+          "during": "Recalculate style (rendering step, after the script)",
+          "times": 1
+        },
+        {
+          "reason": "Added to layout",
+          "node": "TABLE class='plan'",
+          "during": "Recalculate style (rendering step, after the script)",
+          "times": 1
+        },
+        {
+          "reason": "Added to layout",
+          "node": "CAPTION",
+          "during": "Recalculate style (rendering step, after the script)",
+          "times": 1
+        },
+        {
+          "reason": "Added to layout",
+          "node": "#text",
+          "during": "Recalculate style (rendering step, after the script)",
+          "times": 12
+        },
+        {
+          "reason": "Added to layout",
+          "node": "THEAD",
+          "during": "Recalculate style (rendering step, after the script)",
+          "times": 1
+        },
+        {
+          "reason": "Added to layout",
+          "node": "TR",
+          "during": "Recalculate style (rendering step, after the script)",
+          "times": 5
+        },
+        {
+          "reason": "Added to layout",
+          "node": "TH",
+          "during": "Recalculate style (rendering step, after the script)",
+          "times": 6
+        },
+        {
+          "reason": "Added to layout",
+          "node": "TBODY",
+          "during": "Recalculate style (rendering step, after the script)",
+          "times": 1
+        },
+        {
+          "reason": "Added to layout",
+          "node": "TD",
+          "during": "Recalculate style (rendering step, after the script)",
+          "times": 4
+        },
+        {
+          "reason": "Added to layout",
+          "node": "TFOOT",
+          "during": "Recalculate style (rendering step, after the script)",
+          "times": 1
+        }
+      ],
+      "styleInvalidations": [
+        {
+          "event": "StyleRecalcInvalidationTracking",
+          "reason": "PseudoClass",
+          "node": "BUTTON",
+          "during": "no script or event running",
+          "times": 4
+        },
+        {
+          "event": "StyleRecalcInvalidationTracking",
+          "reason": "PseudoClass",
+          "node": "INPUT id='weekly-hours'",
+          "during": "no script or event running",
+          "times": 2
+        },
+        {
+          "event": "StyleRecalcInvalidationTracking",
+          "reason": "Control",
+          "node": "DIV",
+          "during": "no script or event running",
+          "times": 1
+        },
+        {
+          "event": "StyleRecalcInvalidationTracking",
+          "reason": "Control",
+          "node": "DIV",
+          "during": "Recalculate style (rendering step, after the script)",
+          "times": 1
+        },
+        {
+          "event": "StyleRecalcInvalidationTracking",
+          "reason": "Node was inserted into tree",
+          "node": "#text",
+          "during": "onSubmit (planner.mjs:141)",
+          "times": 1
+        },
+        {
+          "event": "ScheduleStyleInvalidationTracking",
+          "reason": null,
+          "node": "DIV id='plan-status' class='plan-status'",
+          "during": "onSubmit (planner.mjs:141)",
+          "times": 1
+        },
+        {
+          "event": "StyleInvalidatorInvalidationTracking",
+          "reason": "Invalidation set invalidates self",
+          "node": "DIV id='plan-status' class='plan-status'",
+          "during": "onSubmit (planner.mjs:141)",
+          "times": 1
+        },
+        {
+          "event": "StyleRecalcInvalidationTracking",
+          "reason": "Related style rule",
+          "node": "DIV id='plan-status' class='plan-status'",
+          "during": "onSubmit (planner.mjs:141)",
+          "times": 1
+        },
+        {
+          "event": "StyleRecalcInvalidationTracking",
+          "reason": "Attribute",
+          "node": "DIV id='plan-result' class='plan-result'",
+          "during": "onSubmit (planner.mjs:141)",
+          "times": 1
+        }
+      ],
+      "paintInvalidations": []
+    },
+    "focus": {
+      "windowMs": 96.8,
+      "counts": {
+        "Recalculate style": 3,
+        "Layout": 0,
+        "Pre-paint": 4,
+        "Paint": 2,
+        "Layerize": 4,
+        "Commit": 4
+      },
+      "pipeline": [
+        {
+          "event": "Recalculate style",
+          "atMs": 1.56,
+          "durationMs": 0.279,
+          "elementCount": 1
+        },
+        {
+          "event": "Recalculate style",
+          "atMs": 1.96,
+          "durationMs": 0.02,
+          "elementCount": 1
+        },
+        {
+          "event": "Recalculate style",
+          "atMs": 2,
+          "durationMs": 0.057,
+          "elementCount": 1
+        },
+        {
+          "event": "Pre-paint",
+          "atMs": 2.39,
+          "durationMs": 0.194
+        },
+        {
+          "event": "Paint",
+          "atMs": 2.62,
+          "durationMs": 0.391
+        },
+        {
+          "event": "Paint",
+          "atMs": 2.65,
+          "durationMs": 0.354
+        },
+        {
+          "event": "Layerize",
+          "atMs": 3.04,
+          "durationMs": 0.076
+        },
+        {
+          "event": "Commit",
+          "atMs": 3.13,
+          "durationMs": 0.189
+        },
+        {
+          "event": "Pre-paint",
+          "atMs": 10.96,
+          "durationMs": 0.006
+        },
+        {
+          "event": "Layerize",
+          "atMs": 10.98,
+          "durationMs": 0.001
+        },
+        {
+          "event": "Commit",
+          "atMs": 10.99,
+          "durationMs": 0.061
+        },
+        {
+          "event": "Pre-paint",
+          "atMs": 27.66,
+          "durationMs": 0.006
+        },
+        {
+          "event": "Layerize",
+          "atMs": 27.68,
+          "durationMs": 0.001
+        },
+        {
+          "event": "Commit",
+          "atMs": 27.69,
+          "durationMs": 0.064
+        },
+        {
+          "event": "Pre-paint",
+          "atMs": 44.52,
+          "durationMs": 0.008
+        },
+        {
+          "event": "Layerize",
+          "atMs": 44.55,
+          "durationMs": 0.002
+        },
+        {
+          "event": "Commit",
+          "atMs": 44.56,
+          "durationMs": 0.085
+        }
+      ],
+      "layoutInvalidations": [],
+      "styleInvalidations": [
+        {
+          "event": "StyleRecalcInvalidationTracking",
+          "reason": "PseudoClass",
+          "node": "BUTTON",
+          "during": "no script or event running",
+          "times": 1
+        },
+        {
+          "event": "StyleRecalcInvalidationTracking",
+          "reason": "PseudoClass",
+          "node": "BUTTON",
+          "during": "browser default action for \"keydown\"",
+          "times": 2
+        },
+        {
+          "event": "StyleRecalcInvalidationTracking",
+          "reason": "PseudoClass",
+          "node": "BUTTON class='button-secondary'",
+          "during": "browser default action for \"keydown\"",
+          "times": 2
+        }
+      ],
+      "paintInvalidations": []
+    }
+  }
+}
