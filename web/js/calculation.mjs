@@ -159,3 +159,66 @@ export function calculateSummary(sessions, goalHours, weeklyHours) {
   };
 }
 
+
+/**
+ * Lists the hours to study in each week of a plan (Project 5 week table).
+ * Every week gets the weekly hours except the last, which gets finalWeekHours.
+ * E.g. a 30-hour goal at 12 hours per week -> [12, 12, 6].
+ *
+ * @param {{ weeklyHours: number, totalWeeks: number, finalWeekHours: number }} plan
+ *   - Result of calculateStudyPlan()
+ * @returns {number[]} Hours per week, one entry per week
+ */
+export function weeklyBreakdown(plan) {
+  const weeks = [];
+  for (let week = 1; week <= plan.totalWeeks; week++) {
+    weeks.push(week === plan.totalWeeks ? plan.finalWeekHours : plan.weeklyHours);
+  }
+  return weeks;
+}
+
+/**
+ * Validates the planner form's raw text values with Project 1's input rules
+ * (Project 5). Values are trimmed first: the shell strips the whitespace
+ * between command-line arguments before Node sees them, so P1 never received
+ * surrounding spaces either. Inner text such as "12 4" is still rejected.
+ *
+ * Returns every field's error at once, so the form can mark all of them.
+ *
+ * @param {{ goalName: string, totalHours: string, weeklyHours: string }} raw
+ *   - Raw input values as typed
+ * @returns {{ ok: boolean,
+ *             values: { goalName: string, totalHours: number, weeklyHours: number } | null,
+ *             errors: { goalName?: string, totalHours?: string, weeklyHours?: string } }}
+ */
+export function validatePlanInput(raw) {
+  const goalName = String(raw.goalName ?? '').trim();
+  const totalHours = String(raw.totalHours ?? '').trim();
+  const weeklyHours = String(raw.weeklyHours ?? '').trim();
+  const errors = {};
+
+  if (!isValidNote(goalName)) {
+    errors.goalName = 'Enter a name for your study goal.';
+  }
+
+  if (totalHours === '') {
+    errors.totalHours = 'Enter the total hours needed.';
+  } else if (!isPositiveInteger(totalHours)) {
+    errors.totalHours = 'Total hours must be a positive whole number, for example 30.';
+  }
+
+  if (weeklyHours === '') {
+    errors.weeklyHours = 'Enter the hours available per week.';
+  } else if (!isPositiveInteger(weeklyHours)) {
+    errors.weeklyHours = 'Weekly hours must be a positive whole number, for example 12.';
+  }
+
+  const ok = Object.keys(errors).length === 0;
+  return {
+    ok,
+    values: ok
+      ? { goalName, totalHours: Number(totalHours), weeklyHours: Number(weeklyHours) }
+      : null,
+    errors,
+  };
+}
