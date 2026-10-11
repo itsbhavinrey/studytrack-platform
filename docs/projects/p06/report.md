@@ -28,7 +28,7 @@ One process (`node server/main.mjs`) on one origin serves:
 | --- | --- | --- |
 | `GET /health` | `200 {"status":"ok","storage":"ok","sessions":N,"uptimeSeconds":S}` | `503 {"status":"error","storage":"corrupt"` or `"unreadable",...}`; `405` + `Allow: GET, HEAD` |
 | `GET /api/sessions` | `200 {"sessions":[{id,minutes,note,timestamp}...],"count":N,"totalMinutes":M}` | `500 storage_corrupt` |
-| `POST /api/sessions` (body exactly `{"minutes":1-1440,"note":"1-200 chars"}`, `Content-Type: application/json`, optional `Idempotency-Key`) | `201 {"session":{...}}` + `Location: /api/sessions/{id}`; `200` + `Idempotent-Replayed: true` for a known key | `400 invalid_json`, `400 invalid_body`, `400 invalid_idempotency_key`, `413 body_too_large`, `415 unsupported_media_type`, `422 validation_failed` (+ per-field `details`), `409 write_conflict` (+ `Retry-After: 1`, `retryable: true`), `500 storage_corrupt` |
+| `POST /api/sessions` (body exactly `{"minutes":1-1440,"note":"1-200 chars"}`, `Content-Type: application/json`, optional `Idempotency-Key`) | `201 {"session":{...}}` + `Location: /api/sessions/{id}`; `200` + `Idempotent-Replayed: true` for a known key with the same body | `400 invalid_json`, `400 invalid_body`, `400 invalid_idempotency_key`, `413 body_too_large`, `415 unsupported_media_type`, `422 validation_failed` (+ per-field `details`), `422 idempotency_key_mismatch` (known key, different body), `409 write_conflict` (+ `Retry-After: 1`, `retryable: true`), `500 storage_corrupt` |
 | `GET /api/sessions/{id}` (target of `Location`) | `200 {"session":{...}}` | `404 not_found` |
 | other method on an API resource | | `405 method_not_allowed` + `Allow` |
 | unknown `/api/...` path | | `404 not_found` |
@@ -60,14 +60,15 @@ $ node --test test/api.test.js
   ✔ 409 write_conflict, retryable with Retry-After, for an overlapping write; no record lost
   ✔ a GET during a slow write sees the old complete list, never a partial file
   ✔ the same Idempotency-Key twice: 201 then 200 with the same record
+  ✔ 422 idempotency_key_mismatch when a known key comes with a different body; nothing stored
 ▶ routing
   ✔ 405 with Allow for an unsupported method on a resource
   ✔ 404 not_found as JSON for unknown API paths and unknown ids
   ✔ the UI is served from the same origin: / redirects to the study log page
 ▶ restart
   ✔ records survive stopping the server and starting a new one on the same file
-ℹ tests 20
-ℹ pass 20
+ℹ tests 21
+ℹ pass 21
 ℹ fail 0
 ```
 
@@ -169,6 +170,25 @@ Idempotent-Replayed: true
 
 {"session":{"id":3,"minutes":25,"note":"retried entry","timestamp":"2026-10-11T15:18:32.501Z"}}
 ```
+
+**Same key, different body** (rejected, not replayed; fresh data file):
+
+```text
+$ curl -si -X POST .../api/sessions -H 'Content-Type: application/json' -H 'Idempotency-Key: 9d2e4b1a-7c3f-4e8d-b6a0-5f1c2e3d4a90' -d '{"minutes":25,"note":"first entry"}'
+HTTP/1.1 201 Created
+Location: /api/sessions/1
+
+$ curl -si -X POST .../api/sessions -H 'Content-Type: application/json' -H 'Idempotency-Key: 9d2e4b1a-7c3f-4e8d-b6a0-5f1c2e3d4a90' -d '{"minutes":45,"note":"first entry"}'
+HTTP/1.1 422 Unprocessable Entity
+Content-Type: application/json; charset=utf-8
+
+{"error":{"code":"idempotency_key_mismatch","message":"This Idempotency-Key was already used for a session with different minutes or note. Use a new key for a new entry.","retryable":false}}
+
+$ curl -s .../api/sessions
+{"sessions":[{"id":1,"minutes":25,"note":"first entry","timestamp":"2026-10-11T15:34:51.372Z"}],"count":1,"totalMinutes":25}
+```
+
+Silently replaying here would answer "saved" for 45 minutes that were never stored. The browser never hits this case (it mints a new key whenever the values change), but any other client could.
 
 **The P2 CLI reads the server's file unchanged:**
 
@@ -329,8 +349,8 @@ acknowledged (201): 1, stored: 1 -> [[1,"request 1"]]
 ```text
 $ npm test
 ...
-ℹ tests 136
-ℹ pass 136
+ℹ tests 138
+ℹ pass 138
 ℹ fail 0
 ...
 --- Testing Stretch Goal: --help ---

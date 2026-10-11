@@ -200,7 +200,7 @@ if (mine !== loadNumber) return; // a newer load has started; drop this answer
 
 ### 5.1 P2 modules: storage separate from HTTP
 
-`server/api.mjs` never touches a file and `src/storage.js` never sees a request. They meet through a small interface: `store.list()` and `store.add(values, { requestId })`, which resolve or reject with `StoreBusyError` / `CorruptDataError`. `api.mjs` translates those errors into HTTP (`storageError()`): `StoreBusyError` -> 409, `CorruptDataError` -> 500 with no server path in the message (the path goes to the server log). The storage module could move to PostgreSQL in Project 8 without changing the HTTP code, as long as the interface stays.
+`server/api.mjs` never touches a file and `src/storage.js` never sees a request. They meet through a small interface: `store.list()` and `store.add(values, { requestId })`, which resolve or reject with `StoreBusyError` / `IdempotencyKeyMismatchError` / `CorruptDataError`. `api.mjs` translates those errors into HTTP (`storageError()`): `StoreBusyError` -> 409, `IdempotencyKeyMismatchError` -> 422 `idempotency_key_mismatch`, `CorruptDataError` -> 500 with no server path in the message (the path goes to the server log). The storage module could move to PostgreSQL in Project 8 without changing the HTTP code, as long as the interface stays.
 
 The P2 rule "a corrupt file is reported, never overwritten" carries over: `parseSessions()` is now shared by the synchronous and promise readers, so both raise `CorruptDataError` for the same input, and `add()` reads (and fails) before it would ever write.
 
@@ -264,7 +264,7 @@ Why a 302 for `/`: it is an application choice that may change; a 301 would be c
 
 ### `server/api.mjs` (new)
 
-The session resource. `createApi(store)` returns `handleApi(req, res, pathname)`, which picks a handler by path and method. `createSession` checks the optional `Idempotency-Key` format, reads the body, rejects non-objects with 400, validates with `validateSessionInput` (422 with details), calls `store.add` and only then sends 201 + `Location` (or 200 + `Idempotent-Replayed` for a known key). `toResource()` strips internal fields (`requestId`) from responses. `storageError()` maps storage errors to HTTP. It imports the shared ES module directly and the CommonJS storage module through `createRequire`.
+The session resource. `createApi(store)` returns `handleApi(req, res, pathname)`, which picks a handler by path and method. `createSession` checks the optional `Idempotency-Key` format, reads the body, rejects non-objects with 400, validates with `validateSessionInput` (422 with details), calls `store.add` and only then sends 201 + `Location` (or 200 + `Idempotent-Replayed` for a known key with the same minutes and note; a known key with different values is 422 `idempotency_key_mismatch`, because replaying would claim values were saved that never were). `toResource()` strips internal fields (`requestId`) from responses. `storageError()` maps storage errors to HTTP. It imports the shared ES module directly and the CommonJS storage module through `createRequire`.
 
 ### `server/http-json.mjs` (new)
 

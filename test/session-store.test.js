@@ -13,6 +13,7 @@ const os = require('node:os');
 const {
   CorruptDataError,
   StoreBusyError,
+  IdempotencyKeyMismatchError,
   loadSessions,
   readSessionsAsync,
   writeSessionsAsync,
@@ -95,6 +96,18 @@ describe('src/storage.js promise API', () => {
     assert.strictEqual(b.created, false);
     assert.deepStrictEqual(b.session, a.session);
     assert.strictEqual((await store.list()).length, 1);
+  });
+
+  test('the same requestId with different details is rejected and stores nothing', async () => {
+    const store = createSessionStore(file);
+    await store.add({ minutes: 25, note: 'once' }, { requestId: 'k-1' });
+    // Trimming is part of the stored note, so whitespace alone is still a match.
+    const same = await store.add({ minutes: 25, note: '  once ' }, { requestId: 'k-1' });
+    assert.strictEqual(same.created, false);
+    await assert.rejects(store.add({ minutes: 30, note: 'once' }, { requestId: 'k-1' }), IdempotencyKeyMismatchError);
+    await assert.rejects(store.add({ minutes: 25, note: 'twice' }, { requestId: 'k-1' }), IdempotencyKeyMismatchError);
+    assert.strictEqual((await store.list()).length, 1);
+    assert.strictEqual(store.writing, false);
   });
 
   test('add on a corrupt file rejects and does not overwrite it', async () => {

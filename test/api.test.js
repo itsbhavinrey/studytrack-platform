@@ -254,6 +254,21 @@ describe('POST /api/sessions', () => {
       assert.strictEqual((await (await fetch(`${url}/api/sessions`)).json()).count, 1);
       await expectError(await postJson(url, { minutes: 1, note: 'x' }, { 'Idempotency-Key': 'bad key!' }), 400, 'invalid_idempotency_key');
     }));
+
+  test('422 idempotency_key_mismatch when a known key comes with a different body; nothing stored', () =>
+    withServer({}, async ({ url }) => {
+      const key = 'b6f1c0de-0000-4000-8000-000000000002';
+      assert.strictEqual((await postJson(url, { minutes: 30, note: 'first' }, { 'Idempotency-Key': key })).status, 201);
+      const error = await expectError(
+        await postJson(url, { minutes: 45, note: 'first' }, { 'Idempotency-Key': key }),
+        422,
+        'idempotency_key_mismatch'
+      );
+      assert.strictEqual(error.retryable, false);
+      await expectError(await postJson(url, { minutes: 30, note: 'other' }, { 'Idempotency-Key': key }), 422, 'idempotency_key_mismatch');
+      const list = await (await fetch(`${url}/api/sessions`)).json();
+      assert.deepStrictEqual(list.sessions.map((s) => [s.minutes, s.note]), [[30, 'first']]);
+    }));
 });
 
 describe('routing', () => {

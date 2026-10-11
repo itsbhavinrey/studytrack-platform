@@ -204,6 +204,18 @@ class StoreBusyError extends Error {
 }
 
 /**
+ * An idempotency key was reused with different session details (P6).
+ * Replaying the stored record would hide that the new details were never saved.
+ */
+class IdempotencyKeyMismatchError extends Error {
+  constructor(requestId) {
+    super(`Request id "${requestId}" was already used for a session with different details.`);
+    this.name = 'IdempotencyKeyMismatchError';
+    this.requestId = requestId;
+  }
+}
+
+/**
  * Reads the sessions without blocking the event loop.
  * Absent file -> []; corrupt file -> CorruptDataError (file left untouched).
  *
@@ -296,12 +308,15 @@ function createSessionStore(filePath, { writeDelayMs = 0 } = {}) {
     /**
      * Appends one validated session. Resolves only after the file is durable.
      * With a requestId that is already stored, returns that record instead of
-     * adding a duplicate (created: false).
+     * adding a duplicate (created: false), but only when the details match the
+     * stored record (same minutes, same trimmed note). The record itself is the
+     * fingerprint of the first request, so no separate hash is stored.
      *
      * @param {{ minutes: number, note: string }} details
      * @param {{ requestId?: string }} [options]
      * @returns {Promise<{ session: object, created: boolean }>}
      * @throws {StoreBusyError} If another add() is in progress
+     * @throws {IdempotencyKeyMismatchError} If requestId is stored with other details
      * @throws {CorruptDataError} If the data file is corrupt (left untouched)
      */
     async add(details, { requestId } = {}) {
@@ -311,7 +326,12 @@ function createSessionStore(filePath, { writeDelayMs = 0 } = {}) {
         const sessions = await readSessionsAsync(file);
         if (requestId) {
           const existing = sessions.find((s) => s.requestId === requestId);
-          if (existing) return { session: existing, created: false };
+          if (existing) {
+            const same =
+              existing.minutes === Number(details.minutes) && existing.note === String(details.note).trim();
+            if (!same) throw new IdempotencyKeyMismatchError(requestId);
+            return { session: existing, created: false };
+          }
         }
         const session = newSessionRecord(sessions, details, requestId);
         if (writeDelayMs > 0) await new Promise((r) => setTimeout(r, writeDelayMs));
@@ -328,6 +348,7 @@ module.exports = {
   DEFAULT_FILE_NAME,
   CorruptDataError,
   StoreBusyError,
+  IdempotencyKeyMismatchError,
   resolveDataFilePath,
   loadSessions,
   saveSessions,

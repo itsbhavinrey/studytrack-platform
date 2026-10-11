@@ -338,7 +338,7 @@ The pages are served under `/studytrack-platform/` (the GitHub Pages path), and 
 - Body at most 4096 bytes, otherwise `413 body_too_large` (checked from `Content-Length` and by counting a chunked body).
 - Body is UTF-8 JSON, otherwise `400 invalid_json`; a JSON object, otherwise `400 invalid_body`.
 - Exactly the fields `minutes` (a JSON integer, 1 to 1440) and `note` (a string, 1 to 200 characters after trimming); anything else is `422 validation_failed` with a message per field in `details`.
-- Optional header `Idempotency-Key` (8-100 letters, digits, `-`, `_`): repeating a request with a key that was already stored returns that record with `200` and `Idempotent-Replayed: true` instead of creating a duplicate.
+- Optional header `Idempotency-Key` (8-100 letters, digits, `-`, `_`): repeating a request with a key that was already stored returns that record with `200` and `Idempotent-Replayed: true` instead of creating a duplicate. Reusing a stored key with a different `minutes` or `note` (after trimming) is `422 idempotency_key_mismatch` and stores nothing: one key means one entry.
 - If another write is in progress: `409 write_conflict`, `Retry-After: 1`, `"retryable": true`. Nothing was stored; send the same request again.
 - The response is sent only after the record is on disk (temporary file, `fsync`, atomic `rename`).
 
@@ -721,4 +721,4 @@ rm -rf /tmp/studytrack-fresh-verify
 - [x] All three endpoints follow their documented contracts (`test/api.test.js`, 20 tests; curl examples in `docs/projects/p06/report.md` section 3).
 - [x] Two-tab and restart checks pass (`npm run test:browser:log`, 21/21; report section 4).
 - [x] Invalid JSON and overlapping writes have defined outcomes (`400 invalid_json`; `409 write_conflict` + `Retry-After`, nothing lost; report section 3).
-- [x] Server-down recovery works and prior calculation tests remain green (Exercise 7; `npm test` 136/136 and 13/13 P1 acceptance cases).
+- [x] Server-down recovery works and prior calculation tests remain green (Exercise 7; `npm test` 138/138 and 13/13 P1 acceptance cases).

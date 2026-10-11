@@ -13,7 +13,7 @@ import { calculateAccumulatedMinutes, validateSessionInput } from '../web/js/cal
 import { HttpError, readJsonBody, sendJson } from './http-json.mjs';
 
 const require = createRequire(import.meta.url);
-const { CorruptDataError, StoreBusyError } = require('../src/storage.js');
+const { CorruptDataError, IdempotencyKeyMismatchError, StoreBusyError } = require('../src/storage.js');
 
 /** How long a client should wait before retrying a 409 write_conflict. */
 export const RETRY_AFTER_SECONDS = 1;
@@ -37,6 +37,15 @@ function storageError(err) {
       retryable: true,
       headers: { 'Retry-After': String(RETRY_AFTER_SECONDS) },
     });
+  }
+  if (err instanceof IdempotencyKeyMismatchError) {
+    // draft-ietf-httpapi-idempotency-key-header: a reused key with a different
+    // payload is a client error, not a replay. Nothing new was stored.
+    return new HttpError(
+      422,
+      'idempotency_key_mismatch',
+      'This Idempotency-Key was already used for a session with different minutes or note. Use a new key for a new entry.'
+    );
   }
   if (err instanceof CorruptDataError) {
     // The server log has the file path and parser message; the client gets
