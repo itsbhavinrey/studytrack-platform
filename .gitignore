@@ -1,0 +1,16 @@
+# Local StudyTrack data written by planner.js (README step 5 uses fresh-demo.json)
+studytrack-data.json
+fresh-demo.json
+*.demo.json
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Dependencies and build output (the Pages workflow builds _site/)
+node_modules/
+_site/
+
+# OS noise
+.DS_Store
