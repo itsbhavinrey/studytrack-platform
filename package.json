@@ -17,7 +17,8 @@
     "serve": "node scripts/serve.mjs",
     "test:browser": "node scripts/check-planner.mjs > /dev/null",
     "record:planner": "node scripts/record-planner.mjs --out docs/projects/p05/perf",
-    "test:api": "node --test test/api.test.js test/session-store.test.js test/session-input.test.js test/server-constraints.test.js"
+    "test:api": "node --test test/api.test.js test/session-store.test.js test/session-input.test.js test/server-constraints.test.js",
+    "test:browser:log": "node scripts/check-study-log.mjs > /dev/null"
   },
   "keywords": [
     "studytrack",
