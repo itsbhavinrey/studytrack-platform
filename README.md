@@ -4,7 +4,7 @@
 
 A terminal application for planning study goals, logging study sessions, and tracking progress over time.
 
-StudyTrack began as a stateless study-time calculator (**Project 1**) and has been extended into a persistent study log that survives process restarts (**Project 2**). **Project 3** adds a second runnable artifact: a static, accessible public study profile page in `web/` (HTML and CSS only, no JavaScript).
+StudyTrack began as a stateless study-time calculator (**Project 1**) and has been extended into a persistent study log that survives process restarts (**Project 2**). **Project 3** adds a second runnable artifact: a static, accessible public study profile page in `web/` (HTML and CSS only, no JavaScript). **Project 4** publishes that page on the internet with GitHub Pages: https://itsbhavinrey.github.io/studytrack-platform/
 
 ---
 
@@ -12,6 +12,7 @@ StudyTrack began as a stateless study-time calculator (**Project 1**) and has be
 
 - **Project 1**: Understand terminal environments, Node CLI execution, pure calculations, input validation, and Git version control.
 - **Project 2**: Build modular JavaScript/Node applications, design JSON data models, implement file persistence, handle absent and corrupted data safely, and write thorough unit and integration test suites.
+- **Project 4**: Trace a real browser request (DNS, HTTPS, HTTP status and content type), publish a static artifact, use a branch + pull request + merge workflow, and practise rollback.
 - **Project 3**: Learn the browser document model with semantic HTML (landmarks, headings, lists, labels), the CSS cascade and box model, one responsive layout technique (flexbox), and keyboard and contrast accessibility checks.
 
 ### Learning Topics
@@ -47,11 +48,17 @@ studytrack-platform/
 ├── prd2.md                 # Project 2 Product Requirements Document
 ├── package.json            # Test runner scripts (no third-party dependencies)
 ├── README.md               # Documentation, usage guide, and verification notes
-├── web/                    # Project 3 static study profile (no JavaScript)
+├── .github/workflows/
+│   └── pages.yml           # Project 4: test, publish web/ to GitHub Pages, verify the public site
+├── web/                    # Project 3 static study profile (no JavaScript); the published site root
 │   ├── index.html          # Semantic page structure: landmarks, headings, lists, table, form
-│   └── styles.css          # Hand-written CSS: cascade, flexbox layout, focus styles
+│   ├── styles.css          # Hand-written CSS: cascade, flexbox layout, focus styles
+│   └── 404.html            # Project 4: page GitHub Pages serves for missing paths
+├── scripts/
+│   └── check-site.mjs      # Project 4: headless-Chrome network + viewport check of a URL
 ├── docs/
 │   └── projects/
+│       ├── p04/            # Project 4 prd, report (DNS/HTTP/rollback evidence), learning notes, screenshots
 │       └── p03/
 │           ├── prd.md      # Project 3 brief as a checklist, plus build decisions
 │           ├── report.md   # Viewport, keyboard, contrast checks and failure report
@@ -65,7 +72,8 @@ studytrack-platform/
     ├── acceptance.js       # Project 1 acceptance test runner (13 test cases)
     ├── calculation.test.js # Unit tests for pure calculation and validation functions
     ├── storage.test.js     # Unit tests for file persistence and corrupt file safety
-    └── p2.test.js          # Integration tests for multi-run persistence and commands
+    ├── p2.test.js          # Integration tests for multi-run persistence and commands
+    └── web.test.js         # Project 4: every local href/src in web/*.html points at a real file
 ```
 
 ### Module Separation (Requirement 3)
@@ -201,6 +209,48 @@ The sample plan matches the calculator: `node planner.js 30 12` gives 3 weeks wi
 
 The goal form is a **preview until Project 5**. Its button is `type="button"` and it has more than one field with no submit button, so neither clicking nor pressing Enter submits anything.
 
+### 7. Published Study Profile (Project 4)
+
+The page in `web/` is published at **https://itsbhavinrey.github.io/studytrack-platform/** by the GitHub Actions workflow `.github/workflows/pages.yml`. GitHub Pages serves the contents of `web/` as the site root, so the relative `styles.css` link works both from disk and online. There is no backend and no custom domain.
+
+**How a change gets published**
+
+1. Make the change on a branch, push it, and open a pull request: `git switch -c my-change`, commit, `git push -u origin my-change`, `gh pr create`.
+2. Inspect the diff (`gh pr diff <n>`), then merge with a merge commit (`gh pr merge <n> --merge`), and update local `main` with `git pull --ff-only`.
+3. The push to `main` (when it touches `web/` or the workflow) starts the workflow. It runs `npm test`, copies `web/` into the site, adds `version.txt`, deploys, and then its `verify` job checks the **public** site: it waits until `version.txt` reports the new commit, then checks the document (200 `text/html`), the stylesheet (200 `text/css`), a missing path (404) and every local resource.
+
+**Which commit is live?**
+
+```bash
+curl -s https://itsbhavinrey.github.io/studytrack-platform/version.txt
+```
+
+This prints `commit: <sha>`, `ref: ...` and `run: <Actions run id>`. Trust this file over the GitHub deployments page, which records the workflow's commit rather than the commit that was deployed (see `docs/projects/p04/report.md`, section 2).
+
+**Roll back to a known-good page**
+
+```bash
+gh workflow run pages.yml --ref main -f ref=<known-good-sha>   # deploy an earlier commit
+gh run watch                                                    # wait; the verify job must pass
+curl -s https://itsbhavinrey.github.io/studytrack-platform/version.txt
+gh workflow run pages.yml --ref main -f ref=main               # roll forward when fixed
+```
+
+The same can be done from the Actions tab ("Publish study profile" → "Run workflow", fill in `ref`). A redeploy does not change `main`, so the next push to `main` would publish the bad change again. To make a rollback permanent, `git revert <bad-commit>` on a branch and merge it through a PR.
+
+**Check the public page yourself**
+
+```bash
+dig itsbhavinrey.github.io A +noall +answer                                   # name -> addresses
+curl -sI https://itsbhavinrey.github.io/studytrack-platform/                   # 200 text/html
+curl -sI https://itsbhavinrey.github.io/studytrack-platform/styles.css         # 200 text/css
+npm run check:site -- https://itsbhavinrey.github.io/studytrack-platform/ --screenshots /tmp/shots
+```
+
+`check:site` needs Google Chrome (set `CHROME_PATH` if it is not in the default macOS location). It records each request's status and Content-Type, which is the same data as the DevTools Network panel, checks for horizontal scrolling at 360px and 1280px, and exits 1 on any required-resource failure.
+
+Note that GitHub Pages responses are cacheable for 10 minutes (`cache-control: max-age=600`), so a browser may show the previous version briefly after a deploy or rollback.
+
 ---
 
 ## Data Storage & Persistence
@@ -295,6 +345,9 @@ node --test test/p2.test.js
 
 # Project 1 backward-compatibility acceptance tests:
 node test/acceptance.js
+
+# Project 4 web resource-link tests:
+npm run test:web
 ```
 
 ---
@@ -334,6 +387,26 @@ Full details, numbers, and screenshots are in [`docs/projects/p03/report.md`](do
   - [`break-before-repair-360.png`](docs/projects/p03/screenshots/break-before-repair-360.png)
   - [`break-after-repair-360.png`](docs/projects/p03/screenshots/break-after-repair-360.png)
   - 1280px versions are in the same folder.
+
+---
+
+## Project 4 Checks (published site)
+
+Full evidence is in [`docs/projects/p04/report.md`](docs/projects/p04/report.md), and the concept notes are in [`docs/projects/p04/learning.md`](docs/projects/p04/learning.md).
+
+- **PRs**: [#1](https://github.com/itsbhavinrey/studytrack-platform/pull/1) published the page (merge commit `e413661`). [#2](https://github.com/itsbhavinrey/studytrack-platform/pull/2) added verification and the 404 page (merge commit `c797230`, the live commit).
+- **DNS**: `itsbhavinrey.github.io` resolves to four A records (`185.199.108-111.153`) and four AAAA records. DNS resolves only the host name; the path `/studytrack-platform/...` is handled by the GitHub Pages web server.
+- **HTTP/HTTPS**: the document is `200 text/html; charset=utf-8`, the stylesheet is `200 text/css; charset=utf-8`, the certificate is `*.github.io` from Let's Encrypt (verify code 0), and `http://` redirects to `https://` with a 301.
+- **Viewports at the public URL**: no horizontal scroll at 360px or 1280px. Screenshots are in `docs/projects/p04/screenshots/`.
+- **Rollback**: redeployed `e413661` over `c797230`, confirmed it with `version.txt` and the page text, then rolled forward.
+
+### Exercise 5: Wrong Stylesheet Path on the Public Site (Project 4)
+
+- **Fault**: a temporary branch changed the stylesheet link to `css/styles.css` and was deployed with `gh workflow run pages.yml -f ref=<branch>`. The deploy job was green.
+- **Symptom**: the public page rendered unstyled (Times font, bullets, no colours).
+- **Evidence**: Chrome network events showed `Stylesheet 404 text/html .../studytrack-platform/css/styles.css`, and `curl -sI` gave the same 404, while the document itself was 200.
+- **Repair**: restored `href="styles.css"` on the branch and redeployed. The stylesheet returned `200 text/css` again. Then redeployed `main` and deleted the branch.
+- **Prevention**: `test/web.test.js` now fails on that path, and the workflow runs the tests before uploading. Screenshots: [`drill-broken-1280.jpg`](docs/projects/p04/screenshots/drill-broken-1280.jpg) and [`drill-repaired-1280.jpg`](docs/projects/p04/screenshots/drill-repaired-1280.jpg).
 
 ---
 
@@ -443,3 +516,10 @@ rm -rf /tmp/studytrack-fresh-verify
 - [x] Both viewport checks pass (360px and 1280px, no horizontal scroll).
 - [x] Keyboard operation and visible labels pass (14-stop Tab route, visible focus, labelled inputs). A manual human keyboard pass is still recommended.
 - [x] This README and the before/after screenshots explain the accessibility repair (Exercise 4 above).
+
+### Project 4 Definition of Done
+
+- [x] The public HTTPS page works with no required-resource failures (document and stylesheet 200, at 360px and 1280px).
+- [x] The PR and the deployed commit are identifiable (PRs #1 and #2; `version.txt` on the live site).
+- [x] DNS and HTTP evidence is recorded (`docs/projects/p04/report.md`).
+- [x] Broken-asset diagnosis and rollback are demonstrated (Exercise 5 and the report's rollback section).
