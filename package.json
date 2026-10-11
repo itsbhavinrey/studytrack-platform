@@ -3,6 +3,9 @@
   "version": "2.0.0",
   "description": "StudyTrack - Study-time calculator and persistent study session log",
   "main": "planner.js",
+  "engines": {
+    "node": ">=22.12"
+  },
   "scripts": {
     "test": "node --test test/*.test.js && node test/acceptance.js",
     "test:unit": "node --test test/calculation.test.js test/storage.test.js",
